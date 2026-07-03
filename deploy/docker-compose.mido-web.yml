@@ -11,7 +11,8 @@ services:
     expose:
       - "3000"
     networks:
-      - nginx-network
+      portfolio-network:
+        external: true
 
 networks:
   nginx-network:
