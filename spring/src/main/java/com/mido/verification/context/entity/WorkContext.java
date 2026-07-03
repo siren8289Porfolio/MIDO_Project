@@ -1,6 +1,6 @@
-package com.mido.verification.context;
+package com.mido.verification.context.entity;
 
-import com.mido.verification.common.VerificationData;
+import com.mido.verification.common.entity.VerificationData;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -45,7 +45,7 @@ public class WorkContext {
     public void setDisplayRepoUrl(String displayRepoUrl) { this.displayRepoUrl = displayRepoUrl; }
     public String getDisplayCommitHash() { return displayCommitHash; }
     public void setDisplayCommitHash(String displayCommitHash) { this.displayCommitHash = displayCommitHash; }
-    public Integer getDisplayPrNumber() { return displayPrNumber; }
+    public String getDisplayPrNumber() { return displayPrNumber; }
     public void setDisplayPrNumber(Integer displayPrNumber) { this.displayPrNumber = displayPrNumber; }
     public Instant getCreatedAt() { return createdAt; }
     public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }

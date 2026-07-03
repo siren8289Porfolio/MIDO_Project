@@ -1,6 +1,7 @@
-package com.mido.verification.upload;
+package com.mido.verification.upload.controller;
 
-import com.mido.verification.common.ApiResponseVoid;
+import com.mido.verification.common.dto.ApiResponseVoid;
+import com.mido.verification.upload.service.UploadService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;

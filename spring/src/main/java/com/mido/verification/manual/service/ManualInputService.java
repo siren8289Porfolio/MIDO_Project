@@ -1,9 +1,13 @@
-package com.mido.verification.manual;
+package com.mido.verification.manual.service;
 
-import com.mido.verification.common.VerificationData;
-import com.mido.verification.common.VerificationDataRepository;
-import com.mido.verification.context.WorkContext;
-import com.mido.verification.context.WorkContextRepository;
+import com.mido.verification.common.entity.VerificationData;
+import com.mido.verification.common.repository.VerificationDataRepository;
+import com.mido.verification.context.entity.WorkContext;
+import com.mido.verification.context.repository.WorkContextRepository;
+import com.mido.verification.manual.dto.ManualInputRequest;
+import com.mido.verification.manual.dto.VerificationCreateResponse;
+import com.mido.verification.manual.entity.ManualInput;
+import com.mido.verification.manual.repository.ManualInputRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -75,9 +79,7 @@ public class ManualInputService {
         }
 
         switch (type) {
-            case "PASTE" -> {
-                requireNotBlank(request.getRawInput(), "rawInput is required for PASTE");
-            }
+            case "PASTE" -> requireNotBlank(request.getRawInput(), "rawInput is required for PASTE");
             case "COMMIT" -> {
                 requireNotBlank(request.getRepoUrl(), "repoUrl is required for COMMIT");
                 requireNotBlank(request.getCommitHash(), "commitHash is required for COMMIT");

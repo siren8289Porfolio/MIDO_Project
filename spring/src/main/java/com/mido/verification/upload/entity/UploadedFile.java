@@ -1,6 +1,6 @@
-package com.mido.verification.upload;
+package com.mido.verification.upload.entity;
 
-import com.mido.verification.common.VerificationData;
+import com.mido.verification.common.entity.VerificationData;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

@@ -1,5 +1,8 @@
-package com.mido.verification.manual;
+package com.mido.verification.manual.controller;
 
+import com.mido.verification.manual.dto.ManualInputRequest;
+import com.mido.verification.manual.dto.VerificationCreateResponse;
+import com.mido.verification.manual.service.ManualInputService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

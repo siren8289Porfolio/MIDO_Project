@@ -1,4 +1,4 @@
-package com.mido.verification.manual;
+package com.mido.verification.manual.dto;
 
 import java.util.UUID;
 
@@ -49,4 +49,3 @@ public class VerificationCreateResponse {
         this.nextAction = nextAction;
     }
 }
-

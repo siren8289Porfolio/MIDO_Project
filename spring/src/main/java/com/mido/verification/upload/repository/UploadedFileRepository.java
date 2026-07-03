@@ -1,6 +1,7 @@
-package com.mido.verification.upload;
+package com.mido.verification.upload.repository;
 
-import com.mido.verification.common.VerificationData;
+import com.mido.verification.common.entity.VerificationData;
+import com.mido.verification.upload.entity.UploadedFile;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

@@ -1,7 +1,9 @@
-package com.mido.verification.upload;
+package com.mido.verification.upload.service;
 
-import com.mido.verification.common.VerificationData;
-import com.mido.verification.common.VerificationDataRepository;
+import com.mido.verification.common.entity.VerificationData;
+import com.mido.verification.common.repository.VerificationDataRepository;
+import com.mido.verification.upload.entity.UploadedFile;
+import com.mido.verification.upload.repository.UploadedFileRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;

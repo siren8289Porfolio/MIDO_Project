@@ -1,4 +1,4 @@
-package com.mido.verification.manual;
+package com.mido.verification.manual.dto;
 
 public class ManualInputRequest {
 

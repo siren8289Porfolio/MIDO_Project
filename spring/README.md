@@ -11,10 +11,27 @@ spring/
 ├── src/main/
 │   ├── java/com/mido/verification/
 │   │   ├── VerificationApplication.java
-│   │   ├── common/     # 공통 엔티티·리포 (VerificationData)
-│   │   ├── manual/     # 수동 입력 (ManualInput, 서비스, 컨트롤러, DTO)
-│   │   ├── upload/     # 파일 업로드 (UploadedFile, 서비스, 컨트롤러)
-│   │   └── context/   # 작업 컨텍스트 조회 (WorkContext, 서비스, 컨트롤러, DTO)
+│   │   ├── common/
+│   │   │   ├── dto/         # ApiResponseVoid
+│   │   │   ├── entity/      # VerificationData
+│   │   │   └── repository/  # VerificationDataRepository
+│   │   ├── manual/
+│   │   │   ├── controller/
+│   │   │   ├── service/
+│   │   │   ├── repository/
+│   │   │   ├── entity/
+│   │   │   └── dto/
+│   │   ├── upload/
+│   │   │   ├── controller/
+│   │   │   ├── service/
+│   │   │   ├── repository/
+│   │   │   └── entity/
+│   │   └── context/
+│   │       ├── controller/
+│   │       ├── service/
+│   │       ├── repository/
+│   │       ├── entity/
+│   │       └── dto/
 │   └── resources/
 │       └── application.yml
 ├── build.gradle.kts

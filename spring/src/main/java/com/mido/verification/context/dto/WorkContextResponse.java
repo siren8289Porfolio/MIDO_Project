@@ -1,4 +1,6 @@
-package com.mido.verification.context;
+package com.mido.verification.context.dto;
+
+import com.mido.verification.context.entity.WorkContext;
 
 /**
  * OpenAPI의 WorkContextResponse(oneOf) 스키마에 대응하는 DTO.

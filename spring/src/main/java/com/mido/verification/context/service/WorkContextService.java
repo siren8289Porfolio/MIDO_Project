@@ -1,8 +1,11 @@
-package com.mido.verification.context;
+package com.mido.verification.context.service;
 
-import com.mido.verification.common.VerificationData;
-import com.mido.verification.upload.UploadedFile;
-import com.mido.verification.upload.UploadedFileRepository;
+import com.mido.verification.common.entity.VerificationData;
+import com.mido.verification.context.dto.WorkContextResponse;
+import com.mido.verification.context.entity.WorkContext;
+import com.mido.verification.context.repository.WorkContextRepository;
+import com.mido.verification.upload.entity.UploadedFile;
+import com.mido.verification.upload.repository.UploadedFileRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

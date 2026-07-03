@@ -1,5 +1,7 @@
-package com.mido.verification.context;
+package com.mido.verification.context.controller;
 
+import com.mido.verification.context.dto.WorkContextResponse;
+import com.mido.verification.context.service.WorkContextService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

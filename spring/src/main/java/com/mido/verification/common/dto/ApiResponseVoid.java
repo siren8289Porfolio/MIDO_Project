@@ -1,4 +1,4 @@
-package com.mido.verification.common;
+package com.mido.verification.common.dto;
 
 /**
  * OpenAPI의 ApiResponseVoid 스키마에 대응하는 공통 응답 래퍼.
@@ -48,4 +48,3 @@ public class ApiResponseVoid {
         this.message = message;
     }
 }
-

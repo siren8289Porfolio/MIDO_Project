@@ -1,5 +1,6 @@
-package com.mido.verification.context;
+package com.mido.verification.context.repository;
 
+import com.mido.verification.context.entity.WorkContext;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
