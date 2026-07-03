@@ -1,78 +1,78 @@
 #!/usr/bin/env bash
+# MIDO 단일 배포 — deploy/ec2/docker-compose.yml 만 사용
 set -euo pipefail
 
-# 디렉토리와 무관하게 항상 같은 compose 프로젝트로 인식 (이름 충돌 방지)
 export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-portfolio}"
 
-COMPOSE_DIR="${COMPOSE_DIR:-/home/ubuntu/my-portfolio}"
-MIDO_DEPLOY="${MIDO_DEPLOY:-$COMPOSE_DIR/mido-deploy}"
+# EC2: /home/ubuntu/my-portfolio/deploy/ec2
+# 로컬: <repo>/deploy/ec2
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+COMPOSE_FILE="${SCRIPT_DIR}/docker-compose.yml"
+PORTFOLIO="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 
 log() { echo "[mido-deploy] $*"; }
 
-# compose 가 관리하지 않거나 다른 프로젝트 소속인 동명 컨테이너 제거
 remove_stale_containers() {
   local svc owner
   for svc in "$@"; do
     if docker ps -a --format '{{.Names}}' | grep -qx "$svc"; then
       owner=$(docker inspect -f '{{ index .Config.Labels "com.docker.compose.project" }}' "$svc" 2>/dev/null || echo "")
       if [[ -z "$owner" || "$owner" != "$COMPOSE_PROJECT_NAME" ]]; then
-        log "  -> $svc owned by '${owner:-none}', removing to avoid name conflict"
+        log "  -> $svc owned by '${owner:-none}', removing"
         docker rm -f "$svc"
       fi
     fi
   done
 }
 
-docker network inspect portfolio-network >/dev/null 2>&1 \
-  || docker network create portfolio-network
-
-cd "$COMPOSE_DIR"
-
-main_compose=""
-for candidate in docker-compose.yml compose.yml docker-compose.yaml compose.yaml; do
-  if [[ -f "$candidate" ]]; then
-    main_compose="$candidate"
-    break
-  fi
-done
-
-compose_args=()
-if [[ -n "$main_compose" ]]; then
-  if docker compose -f "$main_compose" config --services 2>/dev/null | grep -qx 'mido-app'; then
-    log "Using overlay: $main_compose + mido-deploy/docker-compose.override.yml"
-    compose_args=(-f "$main_compose" -f "$MIDO_DEPLOY/docker-compose.override.yml")
-  else
-    log "mido-app not in $main_compose — using full MIDO stack"
-    compose_args=(-f "$MIDO_DEPLOY/docker-compose.full.yml")
-  fi
-else
-  log "No main compose found — using full MIDO stack"
-  compose_args=(-f "$MIDO_DEPLOY/docker-compose.full.yml")
+if [[ ! -f "$COMPOSE_FILE" ]]; then
+  log "ERROR: missing $COMPOSE_FILE"
+  exit 1
 fi
 
-services="$(docker compose "${compose_args[@]}" config --services)"
-pull_targets=()
-for svc in mido-db mido-app mido-web; do
-  if echo "$services" | grep -qx "$svc"; then
-    pull_targets+=("$svc")
-  fi
-done
+if [[ ! -f "$PORTFOLIO/.env" ]]; then
+  log "ERROR: missing $PORTFOLIO/.env (DB_PASSWORD 등)"
+  exit 1
+fi
+
+cd "$PORTFOLIO"
 
 log "COMPOSE_PROJECT_NAME=$COMPOSE_PROJECT_NAME"
-log "Pulling: ${pull_targets[*]}"
-docker compose "${compose_args[@]}" pull "${pull_targets[@]}"
+log "compose: $COMPOSE_FILE"
 
-log "Removing stale containers with conflicting names (if any)"
-remove_stale_containers "${pull_targets[@]}"
+compose=(docker compose -f "$COMPOSE_FILE")
 
-log "Starting containers"
-docker compose "${compose_args[@]}" up -d "${pull_targets[@]}"
+log "Pulling images"
+"${compose[@]}" pull
 
-docker image prune -f
+log "Removing stale containers (if any)"
+remove_stale_containers mido-db mido-app mido-web portfolio-nginx
 
-if [[ "${SETUP_NGINX:-0}" == "1" ]] && [[ -n "${MIDO_SERVER_NAME:-}" ]]; then
-  log "Running nginx setup"
-  bash "$MIDO_DEPLOY/setup-nginx.sh"
+log "Starting mido-db mido-app mido-web portfolio-nginx"
+"${compose[@]}" up -d
+
+sleep 3
+
+log "Containers:"
+docker ps --filter name='mido|portfolio-nginx' --format 'table {{.Names}}\t{{.Status}}\t{{.Image}}'
+
+log "Verify /mido/"
+curl -s -o /tmp/mido-check.html -w "HTTP %{http_code}\n" http://127.0.0.1/mido/ || true
+if grep -q 'HTTP Status 404' /tmp/mido-check.html 2>/dev/null; then
+  log "ERROR: Tomcat 404 on /mido/ — check portfolio-nginx → mido-web"
+  docker logs portfolio-nginx --tail=30 || true
+  exit 1
 fi
 
+log "Verify API"
+curl -s -o /tmp/mido-api.html -w "HTTP %{http_code}\n" \
+  -X POST http://127.0.0.1/mido/api/verifications/manual \
+  -H 'Content-Type: application/json' \
+  -d '{"inputType":"PASTE","inputMethod":"TEXTAREA","rawInput":"x","code":"x"}' || true
+if grep -q 'HTTP Status 404' /tmp/mido-api.html 2>/dev/null; then
+  log "ERROR: Tomcat 404 on API"
+  exit 1
+fi
+
+docker image prune -f
 log "Done"

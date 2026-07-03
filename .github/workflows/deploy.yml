@@ -85,15 +85,16 @@ jobs:
             ghcr.io/siren8289porfolio/portfolio-mido-web:latest
             ghcr.io/siren8289porfolio/portfolio-mido-web:${{ github.sha }}
 
-      - name: Copy deploy files to EC2
+      - name: Copy deploy/ec2 to EC2
         uses: appleboy/scp-action@v1
         with:
           host: ${{ secrets.EC2_HOST }}
           port: ${{ secrets.EC2_PORT }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "deploy/docker-compose.mido-web.yml,deploy/nginx/mido-locations.conf,deploy/ec2/fix-nginx-mido.sh,deploy/ec2/remote-deploy.sh"
-          target: "/home/ubuntu/my-portfolio/mido-incoming"
+          source: "deploy/ec2"
+          target: "/home/ubuntu/my-portfolio"
+          overwrite: true
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1
@@ -105,24 +106,5 @@ jobs:
           script: |
             set -e
             export COMPOSE_PROJECT_NAME=portfolio
-            cd /home/ubuntu/my-portfolio
-            mkdir -p deploy/nginx mido-deploy
-
-            # scp 가 만든 경로에서 파일 배치
-            if [ -f mido-incoming/deploy/docker-compose.mido-web.yml ]; then
-              cp mido-incoming/deploy/docker-compose.mido-web.yml ./docker-compose.mido-web.yml
-              cp mido-incoming/deploy/nginx/mido-locations.conf ./deploy/nginx/mido-locations.conf
-              cp mido-incoming/deploy/ec2/fix-nginx-mido.sh ./deploy/fix-nginx-mido.sh
-              cp mido-incoming/deploy/ec2/remote-deploy.sh ./mido-deploy/remote-deploy.sh
-            elif [ -f mido-incoming/docker-compose.mido-web.yml ]; then
-              cp mido-incoming/docker-compose.mido-web.yml ./docker-compose.mido-web.yml
-              cp mido-incoming/mido-locations.conf ./deploy/nginx/mido-locations.conf
-              cp mido-incoming/fix-nginx-mido.sh ./deploy/fix-nginx-mido.sh
-              cp mido-incoming/remote-deploy.sh ./mido-deploy/remote-deploy.sh
-            fi
-            chmod +x mido-deploy/remote-deploy.sh 2>/dev/null || true
-
-            chmod +x deploy/fix-nginx-mido.sh
-            # mido-app(context-path=/mido) + mido-web + nginx 패치·검증
-            bash deploy/fix-nginx-mido.sh
-            docker image prune -f
+            chmod +x /home/ubuntu/my-portfolio/deploy/ec2/remote-deploy.sh
+            bash /home/ubuntu/my-portfolio/deploy/ec2/remote-deploy.sh

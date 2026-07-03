@@ -1,5 +1,8 @@
-# MIDO 전체 스택 (my-portfolio compose에 mido 서비스가 없을 때 사용)
-# remote-deploy.sh 가 자동으로 -f docker-compose.full.yml 로 기동합니다.
+# MIDO 단일 compose — CI/EC2 는 이 파일만 사용
+# docker compose -f deploy/ec2/docker-compose.yml up -d
+#
+# 실행 위치: /home/ubuntu/my-portfolio (env_file: .env)
+# COMPOSE_PROJECT_NAME=portfolio
 
 services:
   mido-db:
@@ -7,7 +10,7 @@ services:
     container_name: mido-db
     restart: unless-stopped
     env_file:
-      - ../.env
+      - ../../.env
     environment:
       POSTGRES_DB: mido
       POSTGRES_USER: ${DB_USERNAME:-postgres}
@@ -27,7 +30,7 @@ services:
     container_name: mido-app
     restart: unless-stopped
     env_file:
-      - ../.env
+      - ../../.env
     depends_on:
       mido-db:
         condition: service_healthy
@@ -55,9 +58,25 @@ services:
     networks:
       - portfolio-network
 
+  portfolio-nginx:
+    image: nginx:alpine
+    container_name: portfolio-nginx
+    restart: unless-stopped
+    depends_on:
+      - mido-app
+      - mido-web
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/mido-locations.conf:/etc/nginx/mido-locations.conf:ro
+    networks:
+      - portfolio-network
+
 networks:
   portfolio-network:
-    external: true
+    name: portfolio-network
+    driver: bridge
 
 volumes:
   mido_pg_data:
