@@ -4,6 +4,7 @@ const apiUrl = process.env.API_URL ?? "http://localhost:8080";
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  basePath: "/mido",
   async rewrites() {
     return [
       {

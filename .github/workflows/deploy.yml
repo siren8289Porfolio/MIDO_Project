@@ -94,6 +94,6 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd /home/ubuntu/my-portfolio
-            docker compose pull mido-app
-            docker compose up -d mido-app
+            docker compose pull mido-app mido-web
+            docker compose up -d mido-app mido-web
             docker image prune -f
