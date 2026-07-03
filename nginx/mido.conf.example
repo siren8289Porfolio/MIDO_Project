@@ -1,0 +1,33 @@
+# Nginx reverse proxy example (host nginx → mido-app container)
+# Place under /etc/nginx/sites-available/ and symlink to sites-enabled.
+#
+# Prerequisites:
+#   docker network create nginx-network
+#   mido-app joined to nginx-network (see docker-compose.prod.yml)
+
+upstream mido_backend {
+    server mido-app:8080;
+}
+
+server {
+    listen 80;
+    server_name mido.example.com;
+
+    location / {
+        proxy_pass http://mido_backend;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location /api/ {
+        proxy_pass http://mido_backend;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}

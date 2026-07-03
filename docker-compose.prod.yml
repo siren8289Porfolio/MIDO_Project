@@ -1,0 +1,49 @@
+services:
+  mido-db:
+    image: postgres:16-alpine
+    container_name: mido-db
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: mido
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+    volumes:
+      - mido_pg_data:/var/lib/postgresql/data
+    networks:
+      - mido-internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres} -d mido"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mido-app:
+    image: ghcr.io/${GHCR_OWNER:-siren8289porfolio}/mido:latest
+    container_name: mido-app
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      mido-db:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_URL: jdbc:postgresql://mido-db:5432/mido
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+    ports:
+      - "8080:8080"
+    networks:
+      - nginx-network
+      - mido-internal
+
+networks:
+  nginx-network:
+    external: true
+  mido-internal:
+    driver: bridge
+
+volumes:
+  mido_pg_data:

@@ -1,0 +1,17 @@
+# Git / IDE
+.git
+.idea
+*.iml
+
+# Docs / frontend (not in backend image)
+docs/
+web/
+README.md
+
+# Gradle build output (rebuilt inside Docker)
+spring/build/
+spring/.gradle/
+
+# Local env
+.env
+.env.*

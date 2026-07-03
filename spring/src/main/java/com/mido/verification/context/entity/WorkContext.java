@@ -45,7 +45,7 @@ public class WorkContext {
     public void setDisplayRepoUrl(String displayRepoUrl) { this.displayRepoUrl = displayRepoUrl; }
     public String getDisplayCommitHash() { return displayCommitHash; }
     public void setDisplayCommitHash(String displayCommitHash) { this.displayCommitHash = displayCommitHash; }
-    public String getDisplayPrNumber() { return displayPrNumber; }
+    public Integer getDisplayPrNumber() { return displayPrNumber; }
     public void setDisplayPrNumber(Integer displayPrNumber) { this.displayPrNumber = displayPrNumber; }
     public Instant getCreatedAt() { return createdAt; }
     public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
