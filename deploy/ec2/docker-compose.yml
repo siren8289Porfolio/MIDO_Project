@@ -1,7 +1,5 @@
 # MIDO 단일 compose — CI/EC2 는 이 파일만 사용
-# docker compose -f deploy/ec2/docker-compose.yml up -d
-#
-# 실행 위치: /home/ubuntu/my-portfolio (env_file: .env)
+# remote-deploy.sh 가 --env-file /home/ubuntu/my-portfolio/.env 로 실행
 # COMPOSE_PROJECT_NAME=portfolio
 
 services:
@@ -9,8 +7,6 @@ services:
     image: postgres:16-alpine
     container_name: mido-db
     restart: unless-stopped
-    env_file:
-      - ../../.env
     environment:
       POSTGRES_DB: mido
       POSTGRES_USER: ${DB_USERNAME:-postgres}
@@ -29,8 +25,6 @@ services:
     image: ghcr.io/siren8289porfolio/portfolio-mido:latest
     container_name: mido-app
     restart: unless-stopped
-    env_file:
-      - ../../.env
     depends_on:
       mido-db:
         condition: service_healthy

@@ -98,13 +98,20 @@ jobs:
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1
+        env:
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         with:
           host: ${{ secrets.EC2_HOST }}
           port: ${{ secrets.EC2_PORT }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
+          envs: DB_USERNAME,DB_PASSWORD
           script: |
             set -e
             export COMPOSE_PROJECT_NAME=portfolio
+            # secrets 가 있으면 remote-deploy 가 .env 없을 때 사용
+            export DB_USERNAME="${DB_USERNAME:-postgres}"
+            export DB_PASSWORD="${DB_PASSWORD:-}"
             chmod +x /home/ubuntu/my-portfolio/deploy/ec2/remote-deploy.sh
             bash /home/ubuntu/my-portfolio/deploy/ec2/remote-deploy.sh

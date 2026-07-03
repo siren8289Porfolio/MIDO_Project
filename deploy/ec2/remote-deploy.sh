@@ -4,11 +4,11 @@ set -euo pipefail
 
 export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-portfolio}"
 
-# EC2: /home/ubuntu/my-portfolio/deploy/ec2
-# 로컬: <repo>/deploy/ec2
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 COMPOSE_FILE="${SCRIPT_DIR}/docker-compose.yml"
 PORTFOLIO="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+ENV_FILE="${PORTFOLIO}/.env"
+ENV_EXAMPLE="${SCRIPT_DIR}/.env.example"
 
 log() { echo "[mido-deploy] $*"; }
 
@@ -25,13 +25,53 @@ remove_stale_containers() {
   done
 }
 
+# .env 없으면 생성 (CI secrets / example / 기본값)
+ensure_env_file() {
+  if [[ -f "$ENV_FILE" ]]; then
+    log "Using existing $ENV_FILE"
+    return
+  fi
+
+  if [[ -n "${DB_PASSWORD:-}" ]]; then
+    log "Creating $ENV_FILE from CI/environment variables"
+    umask 077
+    cat >"$ENV_FILE" <<EOF
+DB_USERNAME=${DB_USERNAME:-postgres}
+DB_PASSWORD=${DB_PASSWORD}
+EOF
+    return
+  fi
+
+  if [[ -f "$ENV_EXAMPLE" ]]; then
+    log "WARN: $ENV_FILE missing — creating from deploy/ec2/.env.example"
+    umask 077
+    cp "$ENV_EXAMPLE" "$ENV_FILE"
+    return
+  fi
+
+  log "WARN: $ENV_FILE missing — creating minimal defaults"
+  umask 077
+  cat >"$ENV_FILE" <<EOF
+DB_USERNAME=postgres
+DB_PASSWORD=change-me-strong-password
+EOF
+}
+
 if [[ ! -f "$COMPOSE_FILE" ]]; then
   log "ERROR: missing $COMPOSE_FILE"
   exit 1
 fi
 
-if [[ ! -f "$PORTFOLIO/.env" ]]; then
-  log "ERROR: missing $PORTFOLIO/.env (DB_PASSWORD 등)"
+ensure_env_file
+
+# compose 변수 치환용으로 export
+set -a
+# shellcheck disable=SC1090
+source "$ENV_FILE"
+set +a
+
+if [[ -z "${DB_PASSWORD:-}" ]]; then
+  log "ERROR: DB_PASSWORD is empty in $ENV_FILE"
   exit 1
 fi
 
@@ -39,8 +79,9 @@ cd "$PORTFOLIO"
 
 log "COMPOSE_PROJECT_NAME=$COMPOSE_PROJECT_NAME"
 log "compose: $COMPOSE_FILE"
+log "env: $ENV_FILE"
 
-compose=(docker compose -f "$COMPOSE_FILE")
+compose=(docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE")
 
 log "Pulling images"
 "${compose[@]}" pull
