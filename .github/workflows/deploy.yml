@@ -151,7 +151,8 @@ jobs:
               docker compose -f docker-compose.mido-web.yml up -d mido-web
             fi
 
-            # Nginx: /mido/ 헬스체크 → UI(mido-web) + API(mido-app) 라우팅으로 교체
+            # Nginx: /mido* → mido-web (UI), /mido/api/ → mido-app (API)
+            # Tomcat 404 HTML = UI 가 mido-app(Spring)으로 간 것
             python3 << 'PY'
             from pathlib import Path
             import re
@@ -168,21 +169,38 @@ jobs:
             ).strip()
 
             text = conf.read_text()
-            # 기존 mido 관련 location 전부 제거
+            # /mido 관련 location 전부 제거 후 올바른 블록 1회 삽입
             text = re.sub(
-                r"\n?[ \t]*location\s+(?:=\s+)?/mido(?:/actuator/health|/api/|/)?\s*\{[^{}]*\}",
+                r"\n?[ \t]*location\s+[^{;\n]*mido[^{;\n]*\{[^{}]*\}",
                 "",
                 text,
             )
-            # server { 직후에 올바른 라우팅 삽입
             text = re.sub(r"(server\s*\{)", r"\1\n\n" + locations + "\n", text, count=1)
             conf.write_text(text)
-            print("nginx default.conf updated for mido-web + mido-app")
+            for line in conf.read_text().splitlines():
+                if "mido" in line.lower():
+                    print(line)
+            print("nginx default.conf patched: /mido* → mido-web")
             PY
+
+            if ! docker ps --format '{{.Names}}' | grep -qx mido-web; then
+              echo "ERROR: mido-web container is not running"
+              docker ps -a --filter name=mido
+              exit 1
+            fi
 
             if docker ps --format '{{.Names}}' | grep -qx portfolio-nginx; then
               docker exec portfolio-nginx nginx -t
               docker restart portfolio-nginx
+              sleep 2
+              # UI 가 Spring(Tomcat) 404 가 아닌지 확인
+              CODE=$(curl -s -o /tmp/mido-check.html -w '%{http_code}' http://127.0.0.1/mido/ || true)
+              if grep -q 'HTTP Status 404' /tmp/mido-check.html 2>/dev/null; then
+                echo "ERROR: /mido/ still returns Spring Tomcat 404 — nginx routing wrong"
+                grep -n 'mido' /home/ubuntu/my-portfolio/deploy/nginx/default.conf || true
+                exit 1
+              fi
+              echo "GET /mido/ => HTTP $CODE"
             fi
 
             docker image prune -f
