@@ -1,0 +1,20 @@
+# EC2 my-portfolio compose 에 mido-web 만 추가할 때:
+# docker compose -f docker-compose.yml -f docker-compose.mido-web.yml up -d mido-web
+
+services:
+  mido-web:
+    image: ghcr.io/siren8289porfolio/portfolio-mido-web:latest
+    container_name: mido-web
+    restart: unless-stopped
+    depends_on:
+      - mido-app
+    environment:
+      API_URL: http://mido-app:8080
+    expose:
+      - "3000"
+    networks:
+      - nginx-network
+
+networks:
+  nginx-network:
+    external: true

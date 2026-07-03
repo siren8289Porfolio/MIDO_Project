@@ -85,6 +85,28 @@ jobs:
             ghcr.io/siren8289porfolio/portfolio-mido-web:latest
             ghcr.io/siren8289porfolio/portfolio-mido-web:${{ github.sha }}
 
+      - name: Copy mido-web compose override to EC2
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          port: ${{ secrets.EC2_PORT }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "deploy/docker-compose.mido-web.yml"
+          target: "/home/ubuntu/my-portfolio"
+          strip_components: 1
+
+      - name: Copy nginx mido locations to EC2
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          port: ${{ secrets.EC2_PORT }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "deploy/nginx/mido-locations.conf"
+          target: "/home/ubuntu/my-portfolio/deploy/nginx"
+          strip_components: 2
+
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1
         with:
@@ -93,7 +115,50 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            set -e
             cd /home/ubuntu/my-portfolio
-            docker compose pull mido-app mido-web
-            docker compose up -d mido-app mido-web
+
+            COMPOSE_FILES="-f docker-compose.yml"
+            if [ -f docker-compose.mido-web.yml ]; then
+              COMPOSE_FILES="$COMPOSE_FILES -f docker-compose.mido-web.yml"
+            fi
+
+            docker compose $COMPOSE_FILES pull mido-app mido-web
+            docker compose $COMPOSE_FILES up -d mido-app mido-web
+
+            # Nginx: /mido/ 헬스체크 → UI(mido-web) + API(mido-app) 라우팅으로 교체
+            python3 << 'PY'
+            from pathlib import Path
+            import re
+
+            conf = Path("/home/ubuntu/my-portfolio/deploy/nginx/default.conf")
+            snippet = Path("/home/ubuntu/my-portfolio/deploy/nginx/mido-locations.conf")
+            if not conf.exists() or not snippet.exists():
+                print("nginx conf/snippet missing, skip patch")
+                raise SystemExit(0)
+
+            locations = "\n".join(
+                line for line in snippet.read_text().splitlines()
+                if line.strip() and not line.strip().startswith("#")
+            ).strip()
+
+            text = conf.read_text()
+            # 기존 mido 관련 location 전부 제거
+            text = re.sub(
+                r"\n?[ \t]*location\s+(?:=\s+)?/mido(?:/actuator/health|/api/|/)?\s*\{[^{}]*\}",
+                "",
+                text,
+            )
+            # server { 직후에 올바른 라우팅 삽입
+            text = re.sub(r"(server\s*\{)", r"\1\n\n" + locations + "\n", text, count=1)
+            conf.write_text(text)
+            print("nginx default.conf updated for mido-web + mido-app")
+            PY
+
+            if docker ps --format '{{.Names}}' | grep -qx portfolio-nginx; then
+              docker exec portfolio-nginx nginx -t
+              docker restart portfolio-nginx
+            fi
+
             docker image prune -f
+            docker ps --filter name=mido --format 'table {{.Names}}\t{{.Status}}\t{{.Image}}'

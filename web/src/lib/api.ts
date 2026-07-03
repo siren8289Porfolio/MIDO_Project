@@ -1,6 +1,7 @@
-import type { InputType, NextAction, VerificationSession, WorkContext } from "@/types";
+import type { InputType, NextAction, RiskItem, VerificationSession, WorkContext } from "@/types";
 
-const base = "/api/verifications";
+/** basePath(/mido) + nginx /mido/api/ → mido-app */
+const base = "/mido/api/verifications";
 
 export interface CreateManualPayload {
   inputType: InputType;
@@ -54,8 +55,6 @@ export async function getWorkContext(verificationId: string): Promise<WorkContex
   const res = await fetch(`${base}/${verificationId}/context`);
   return handleResponse<WorkContext>(res);
 }
-
-import type { RiskItem } from "@/types";
 
 /** MVP-2 전까지 프론트 목 데이터 */
 export function mockRisks(code: string): RiskItem[] {
