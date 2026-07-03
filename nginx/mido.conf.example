@@ -2,8 +2,8 @@
 # Place under /etc/nginx/sites-available/ and symlink to sites-enabled.
 #
 # Prerequisites:
-#   docker network create nginx-network
-#   mido-web, mido-app joined to nginx-network (see docker-compose.prod.yml)
+#   docker network create portfolio-network
+#   mido-web, mido-app joined to portfolio-network (see docker-compose.prod.yml)
 
 upstream mido_frontend {
     server mido-web:3000;

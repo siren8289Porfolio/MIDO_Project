@@ -12,7 +12,7 @@ services:
     volumes:
       - mido_pg_data:/var/lib/postgresql/data
     networks:
-      - mido-internal
+      - portfolio-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres} -d mido"]
       interval: 10s
@@ -36,8 +36,7 @@ services:
     expose:
       - "8080"
     networks:
-      - nginx-network
-      - mido-internal
+      - portfolio-network
 
   mido-web:
     image: ghcr.io/siren8289porfolio/portfolio-mido-web:latest
@@ -50,13 +49,11 @@ services:
     expose:
       - "3000"
     networks:
-      - nginx-network
+      - portfolio-network
 
 networks:
-  nginx-network:
+  portfolio-network:
     external: true
-  mido-internal:
-    driver: bridge
 
 volumes:
   mido_pg_data:

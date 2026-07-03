@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# EC2에서 1회 실행 — MIDO 전용 nginx vhost 설치 (Docker nginx on nginx-network 가정)
+# EC2에서 1회 실행 — MIDO 전용 nginx vhost 설치 (Docker nginx on portfolio-network 가정)
 set -euo pipefail
 
 MIDO_DEPLOY="${MIDO_DEPLOY:-/home/ubuntu/my-portfolio/mido-deploy}"

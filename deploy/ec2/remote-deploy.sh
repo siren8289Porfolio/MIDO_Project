@@ -6,8 +6,8 @@ MIDO_DEPLOY="${MIDO_DEPLOY:-$COMPOSE_DIR/mido-deploy}"
 
 log() { echo "[mido-deploy] $*"; }
 
-docker network inspect nginx-network >/dev/null 2>&1 \
-  || docker network create nginx-network
+docker network inspect portfolio-network >/dev/null 2>&1 \
+  || docker network create portfolio-network
 
 cd "$COMPOSE_DIR"
 
