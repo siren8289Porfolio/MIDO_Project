@@ -1,10 +1,13 @@
+# MIDO 전체 스택 (my-portfolio compose에 mido 서비스가 없을 때 사용)
+# remote-deploy.sh 가 자동으로 -f docker-compose.full.yml 로 기동합니다.
+
 services:
   mido-db:
     image: postgres:16-alpine
     container_name: mido-db
     restart: unless-stopped
     env_file:
-      - .env
+      - ../.env
     environment:
       POSTGRES_DB: mido
       POSTGRES_USER: ${DB_USERNAME:-postgres}
@@ -24,7 +27,7 @@ services:
     container_name: mido-app
     restart: unless-stopped
     env_file:
-      - .env
+      - ../.env
     depends_on:
       mido-db:
         condition: service_healthy
