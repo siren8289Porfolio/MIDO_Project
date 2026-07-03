@@ -118,9 +118,10 @@ jobs:
             set -e
             cd /home/ubuntu/my-portfolio
 
-            # EC2 portfolio compose 파일명이 환경마다 다름 (compose.yml / docker-compose.yml 등)
+            # portfolio compose 탐색 (mido-web 오버라이드 파일은 제외)
             MAIN=""
-            for f in compose.yaml compose.yml docker-compose.yaml docker-compose.yml; do
+            for f in compose.yaml compose.yml docker-compose.yaml docker-compose.yml \
+              deploy/compose.yaml deploy/compose.yml deploy/docker-compose.yaml deploy/docker-compose.yml; do
               if [ -f "$f" ]; then
                 MAIN="$f"
                 break
@@ -128,19 +129,27 @@ jobs:
             done
 
             if [ -z "$MAIN" ]; then
-              MAIN=$(grep -l 'mido-app' ./*.yml ./*.yaml 2>/dev/null | head -1 || true)
-              MAIN="${MAIN#./}"
+              for f in ./*.yml ./*.yaml deploy/*.yml deploy/*.yaml; do
+                [ -f "$f" ] || continue
+                case "$f" in
+                  ./docker-compose.mido-web.yml|docker-compose.mido-web.yml) continue ;;
+                esac
+                if grep -qE '^[[:space:]]{2}mido-app:' "$f"; then
+                  MAIN="$f"
+                  break
+                fi
+              done
             fi
 
-            if [ -z "$MAIN" ]; then
-              echo "No compose file in $(pwd); listing:"
-              ls -la
-              exit 1
+            if [ -n "$MAIN" ] && docker compose -f "$MAIN" config --services 2>/dev/null | grep -qx mido-app; then
+              echo "Using compose: $MAIN + docker-compose.mido-web.yml"
+              docker compose -f "$MAIN" -f docker-compose.mido-web.yml pull mido-app mido-web
+              docker compose -f "$MAIN" -f docker-compose.mido-web.yml up -d mido-app mido-web
+            else
+              echo "mido-app compose not found — deploying mido-web only (mido-app already running)"
+              docker compose -f docker-compose.mido-web.yml pull mido-web
+              docker compose -f docker-compose.mido-web.yml up -d mido-web
             fi
-
-            echo "Using compose: $MAIN + docker-compose.mido-web.yml"
-            docker compose -f "$MAIN" -f docker-compose.mido-web.yml pull mido-app mido-web
-            docker compose -f "$MAIN" -f docker-compose.mido-web.yml up -d mido-app mido-web
 
             # Nginx: /mido/ 헬스체크 → UI(mido-web) + API(mido-app) 라우팅으로 교체
             python3 << 'PY'

@@ -6,8 +6,6 @@ services:
     image: ghcr.io/siren8289porfolio/portfolio-mido-web:latest
     container_name: mido-web
     restart: unless-stopped
-    depends_on:
-      - mido-app
     environment:
       API_URL: http://mido-app:8080
     expose:
