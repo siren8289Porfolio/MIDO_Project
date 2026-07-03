@@ -118,13 +118,29 @@ jobs:
             set -e
             cd /home/ubuntu/my-portfolio
 
-            COMPOSE_FILES="-f docker-compose.yml"
-            if [ -f docker-compose.mido-web.yml ]; then
-              COMPOSE_FILES="$COMPOSE_FILES -f docker-compose.mido-web.yml"
+            # EC2 portfolio compose 파일명이 환경마다 다름 (compose.yml / docker-compose.yml 등)
+            MAIN=""
+            for f in compose.yaml compose.yml docker-compose.yaml docker-compose.yml; do
+              if [ -f "$f" ]; then
+                MAIN="$f"
+                break
+              fi
+            done
+
+            if [ -z "$MAIN" ]; then
+              MAIN=$(grep -l 'mido-app' ./*.yml ./*.yaml 2>/dev/null | head -1 || true)
+              MAIN="${MAIN#./}"
             fi
 
-            docker compose $COMPOSE_FILES pull mido-app mido-web
-            docker compose $COMPOSE_FILES up -d mido-app mido-web
+            if [ -z "$MAIN" ]; then
+              echo "No compose file in $(pwd); listing:"
+              ls -la
+              exit 1
+            fi
+
+            echo "Using compose: $MAIN + docker-compose.mido-web.yml"
+            docker compose -f "$MAIN" -f docker-compose.mido-web.yml pull mido-app mido-web
+            docker compose -f "$MAIN" -f docker-compose.mido-web.yml up -d mido-app mido-web
 
             # Nginx: /mido/ 헬스체크 → UI(mido-web) + API(mido-app) 라우팅으로 교체
             python3 << 'PY'
