@@ -2,6 +2,9 @@
 # EC2: mido-web 기동 + nginx 를 /mido → mido-web, /mido/api → mido-app 으로 고정
 set -euo pipefail
 
+# 디렉토리와 무관하게 항상 같은 compose 프로젝트로 인식 (이름 충돌 방지)
+export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-portfolio}"
+
 PORTFOLIO="${PORTFOLIO:-/home/ubuntu/my-portfolio}"
 SNIPPET="${PORTFOLIO}/deploy/nginx/mido-locations.conf"
 WEB_COMPOSE="${PORTFOLIO}/docker-compose.mido-web.yml"
@@ -10,13 +13,31 @@ cd "$PORTFOLIO"
 
 log() { echo "[fix-mido] $*"; }
 
+# compose 미관리 / 다른 프로젝트 소속 동명 컨테이너 제거
+remove_stale_containers() {
+  local svc owner
+  for svc in "$@"; do
+    if docker ps -a --format '{{.Names}}' | grep -qx "$svc"; then
+      owner=$(docker inspect -f '{{ index .Config.Labels "com.docker.compose.project" }}' "$svc" 2>/dev/null || echo "")
+      if [ -z "$owner" ] || [ "$owner" != "$COMPOSE_PROJECT_NAME" ]; then
+        log "  -> $svc owned by '${owner:-none}', removing to avoid name conflict"
+        docker rm -f "$svc"
+      fi
+    fi
+  done
+}
+
 # ── 1. 네트워크 + 최신 이미지 ───────────────────────────────────────────────
 docker network inspect portfolio-network >/dev/null 2>&1 \
   || docker network create portfolio-network
 
+log "COMPOSE_PROJECT_NAME=$COMPOSE_PROJECT_NAME"
 log "Pulling latest mido images (context-path=/mido requires new mido-app)"
 docker pull ghcr.io/siren8289porfolio/portfolio-mido:latest
 docker pull ghcr.io/siren8289porfolio/portfolio-mido-web:latest
+
+log "Removing stale containers with conflicting names (if any)"
+remove_stale_containers mido-app mido-web mido-db
 
 # portfolio compose 에 mido-app 있으면 재기동
 for f in compose.yaml compose.yml docker-compose.yaml docker-compose.yml; do
@@ -29,7 +50,7 @@ done
 
 if [ -f "$WEB_COMPOSE" ]; then
   log "Starting mido-web"
-  docker compose -f "$WEB_COMPOSE" up -d --force-recreate mido-web
+  docker compose -f "$WEB_COMPOSE" up -d --force-recreate --remove-orphans mido-web
 fi
 
 # 이미 떠 있는 컨테이너를 portfolio-network 에 연결
