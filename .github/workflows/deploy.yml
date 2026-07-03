@@ -85,27 +85,15 @@ jobs:
             ghcr.io/siren8289porfolio/portfolio-mido-web:latest
             ghcr.io/siren8289porfolio/portfolio-mido-web:${{ github.sha }}
 
-      - name: Copy mido-web compose override to EC2
+      - name: Copy deploy files to EC2
         uses: appleboy/scp-action@v1
         with:
           host: ${{ secrets.EC2_HOST }}
           port: ${{ secrets.EC2_PORT }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "deploy/docker-compose.mido-web.yml"
-          target: "/home/ubuntu/my-portfolio"
-          strip_components: 1
-
-      - name: Copy nginx mido locations to EC2
-        uses: appleboy/scp-action@v1
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          port: ${{ secrets.EC2_PORT }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          source: "deploy/nginx/mido-locations.conf"
-          target: "/home/ubuntu/my-portfolio/deploy/nginx"
-          strip_components: 2
+          source: "deploy/docker-compose.mido-web.yml,deploy/nginx/mido-locations.conf,deploy/ec2/fix-nginx-mido.sh"
+          target: "/home/ubuntu/my-portfolio/mido-incoming"
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1
@@ -117,91 +105,31 @@ jobs:
           script: |
             set -e
             cd /home/ubuntu/my-portfolio
+            mkdir -p deploy/nginx
 
-            # portfolio compose 탐색 (mido-web 오버라이드 파일은 제외)
+            # scp 가 만든 경로에서 파일 배치
+            if [ -f mido-incoming/deploy/docker-compose.mido-web.yml ]; then
+              cp mido-incoming/deploy/docker-compose.mido-web.yml ./docker-compose.mido-web.yml
+              cp mido-incoming/deploy/nginx/mido-locations.conf ./deploy/nginx/mido-locations.conf
+              cp mido-incoming/deploy/ec2/fix-nginx-mido.sh ./deploy/fix-nginx-mido.sh
+            elif [ -f mido-incoming/docker-compose.mido-web.yml ]; then
+              cp mido-incoming/docker-compose.mido-web.yml ./docker-compose.mido-web.yml
+              cp mido-incoming/mido-locations.conf ./deploy/nginx/mido-locations.conf
+              cp mido-incoming/fix-nginx-mido.sh ./deploy/fix-nginx-mido.sh
+            fi
+
+            # mido-app 이미지가 있으면 같이 pull (compose 에 있을 때만)
             MAIN=""
-            for f in compose.yaml compose.yml docker-compose.yaml docker-compose.yml \
-              deploy/compose.yaml deploy/compose.yml deploy/docker-compose.yaml deploy/docker-compose.yml; do
-              if [ -f "$f" ]; then
-                MAIN="$f"
-                break
-              fi
+            for f in compose.yaml compose.yml docker-compose.yaml docker-compose.yml; do
+              [ -f "$f" ] || continue
+              MAIN="$f"
+              break
             done
-
-            if [ -z "$MAIN" ]; then
-              for f in ./*.yml ./*.yaml deploy/*.yml deploy/*.yaml; do
-                [ -f "$f" ] || continue
-                case "$f" in
-                  ./docker-compose.mido-web.yml|docker-compose.mido-web.yml) continue ;;
-                esac
-                if grep -qE '^[[:space:]]{2}mido-app:' "$f"; then
-                  MAIN="$f"
-                  break
-                fi
-              done
+            if [ -n "$MAIN" ] && grep -q 'mido-app:' "$MAIN" 2>/dev/null; then
+              docker compose -f "$MAIN" -f docker-compose.mido-web.yml pull mido-app mido-web || true
+              docker compose -f "$MAIN" -f docker-compose.mido-web.yml up -d mido-app mido-web || true
             fi
 
-            if [ -n "$MAIN" ] && docker compose -f "$MAIN" config --services 2>/dev/null | grep -qx mido-app; then
-              echo "Using compose: $MAIN + docker-compose.mido-web.yml"
-              docker compose -f "$MAIN" -f docker-compose.mido-web.yml pull mido-app mido-web
-              docker compose -f "$MAIN" -f docker-compose.mido-web.yml up -d mido-app mido-web
-            else
-              echo "mido-app compose not found — deploying mido-web only (mido-app already running)"
-              docker compose -f docker-compose.mido-web.yml pull mido-web
-              docker compose -f docker-compose.mido-web.yml up -d mido-web
-            fi
-
-            # Nginx: /mido* → mido-web (UI), /mido/api/ → mido-app (API)
-            # Tomcat 404 HTML = UI 가 mido-app(Spring)으로 간 것
-            python3 << 'PY'
-            from pathlib import Path
-            import re
-
-            conf = Path("/home/ubuntu/my-portfolio/deploy/nginx/default.conf")
-            snippet = Path("/home/ubuntu/my-portfolio/deploy/nginx/mido-locations.conf")
-            if not conf.exists() or not snippet.exists():
-                print("nginx conf/snippet missing, skip patch")
-                raise SystemExit(0)
-
-            locations = "\n".join(
-                line for line in snippet.read_text().splitlines()
-                if line.strip() and not line.strip().startswith("#")
-            ).strip()
-
-            text = conf.read_text()
-            # /mido 관련 location 전부 제거 후 올바른 블록 1회 삽입
-            text = re.sub(
-                r"\n?[ \t]*location\s+[^{;\n]*mido[^{;\n]*\{[^{}]*\}",
-                "",
-                text,
-            )
-            text = re.sub(r"(server\s*\{)", r"\1\n\n" + locations + "\n", text, count=1)
-            conf.write_text(text)
-            for line in conf.read_text().splitlines():
-                if "mido" in line.lower():
-                    print(line)
-            print("nginx default.conf patched: /mido* → mido-web")
-            PY
-
-            if ! docker ps --format '{{.Names}}' | grep -qx mido-web; then
-              echo "ERROR: mido-web container is not running"
-              docker ps -a --filter name=mido
-              exit 1
-            fi
-
-            if docker ps --format '{{.Names}}' | grep -qx portfolio-nginx; then
-              docker exec portfolio-nginx nginx -t
-              docker restart portfolio-nginx
-              sleep 2
-              # UI 가 Spring(Tomcat) 404 가 아닌지 확인
-              CODE=$(curl -s -o /tmp/mido-check.html -w '%{http_code}' http://127.0.0.1/mido/ || true)
-              if grep -q 'HTTP Status 404' /tmp/mido-check.html 2>/dev/null; then
-                echo "ERROR: /mido/ still returns Spring Tomcat 404 — nginx routing wrong"
-                grep -n 'mido' /home/ubuntu/my-portfolio/deploy/nginx/default.conf || true
-                exit 1
-              fi
-              echo "GET /mido/ => HTTP $CODE"
-            fi
-
+            chmod +x deploy/fix-nginx-mido.sh
+            bash deploy/fix-nginx-mido.sh
             docker image prune -f
-            docker ps --filter name=mido --format 'table {{.Names}}\t{{.Status}}\t{{.Image}}'
