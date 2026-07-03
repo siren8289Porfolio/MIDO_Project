@@ -118,18 +118,7 @@ jobs:
               cp mido-incoming/fix-nginx-mido.sh ./deploy/fix-nginx-mido.sh
             fi
 
-            # mido-app 이미지가 있으면 같이 pull (compose 에 있을 때만)
-            MAIN=""
-            for f in compose.yaml compose.yml docker-compose.yaml docker-compose.yml; do
-              [ -f "$f" ] || continue
-              MAIN="$f"
-              break
-            done
-            if [ -n "$MAIN" ] && grep -q 'mido-app:' "$MAIN" 2>/dev/null; then
-              docker compose -f "$MAIN" -f docker-compose.mido-web.yml pull mido-app mido-web || true
-              docker compose -f "$MAIN" -f docker-compose.mido-web.yml up -d mido-app mido-web || true
-            fi
-
             chmod +x deploy/fix-nginx-mido.sh
+            # mido-app(context-path=/mido) + mido-web + nginx 패치·검증
             bash deploy/fix-nginx-mido.sh
             docker image prune -f

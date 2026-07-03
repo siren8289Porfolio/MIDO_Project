@@ -10,14 +10,26 @@ cd "$PORTFOLIO"
 
 log() { echo "[fix-mido] $*"; }
 
-# ── 1. 네트워크 + mido-web ──────────────────────────────────────────────────
+# ── 1. 네트워크 + 최신 이미지 ───────────────────────────────────────────────
 docker network inspect portfolio-network >/dev/null 2>&1 \
   || docker network create portfolio-network
 
+log "Pulling latest mido images (context-path=/mido requires new mido-app)"
+docker pull ghcr.io/siren8289porfolio/portfolio-mido:latest
+docker pull ghcr.io/siren8289porfolio/portfolio-mido-web:latest
+
+# portfolio compose 에 mido-app 있으면 재기동
+for f in compose.yaml compose.yml docker-compose.yaml docker-compose.yml; do
+  if [ -f "$PORTFOLIO/$f" ] && grep -q 'mido-app:' "$PORTFOLIO/$f"; then
+    log "Recreating mido-app from $f"
+    docker compose -f "$PORTFOLIO/$f" up -d --force-recreate --no-deps mido-app || true
+    break
+  fi
+done
+
 if [ -f "$WEB_COMPOSE" ]; then
   log "Starting mido-web"
-  docker compose -f "$WEB_COMPOSE" pull mido-web
-  docker compose -f "$WEB_COMPOSE" up -d mido-web
+  docker compose -f "$WEB_COMPOSE" up -d --force-recreate mido-web
 fi
 
 # 이미 떠 있는 컨테이너를 portfolio-network 에 연결
@@ -125,13 +137,18 @@ else
   echo
 fi
 
-log "API prefix strip test (expect 201 or 400, not Tomcat HTML):"
+log "API test (Spring context-path=/mido, expect 201 or 400, not Tomcat HTML):"
+# 컨테이너에서 직접 (nginx 우회)
+docker exec portfolio-nginx wget -q -O - --post-data='{"inputType":"PASTE","inputMethod":"TEXTAREA","rawInput":"x","code":"x"}' \
+  --header='Content-Type: application/json' \
+  http://mido-app:8080/mido/api/verifications/manual 2>/dev/null | head -c 200 || true
+echo
 curl -s -o /tmp/mido-api.html -w "HTTP %{http_code}\n" \
   -X POST http://127.0.0.1/mido/api/verifications/manual \
   -H 'Content-Type: application/json' \
   -d '{"inputType":"PASTE","inputMethod":"TEXTAREA","rawInput":"x","code":"x"}' || true
 if grep -q 'HTTP Status 404' /tmp/mido-api.html 2>/dev/null; then
-  log "ERROR: API still Tomcat 404 — /mido/api prefix not stripped"
+  log "ERROR: API still Tomcat 404 — need mido-app image with context-path=/mido and nginx proxy_pass without strip"
   exit 1
 fi
 

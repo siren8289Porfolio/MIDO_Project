@@ -2,9 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 
 /** nginx가 /mido/api 를 mido-web 으로내도 Spring 으로 전달 */
 const apiUrl = () => process.env.API_URL ?? "http://localhost:8080";
+/** prod Spring: server.servlet.context-path=/mido → API_CONTEXT_PATH=/mido */
+const apiContext = () => process.env.API_CONTEXT_PATH ?? "";
 
 async function proxy(req: NextRequest, path: string[]) {
-  const target = `${apiUrl()}/api/verifications/${path.join("/")}${req.nextUrl.search}`;
+  const target = `${apiUrl()}${apiContext()}/api/verifications/${path.join("/")}${req.nextUrl.search}`;
 
   const headers = new Headers(req.headers);
   headers.delete("host");

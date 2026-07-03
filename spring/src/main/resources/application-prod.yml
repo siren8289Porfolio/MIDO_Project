@@ -19,6 +19,9 @@ spring:
 
 server:
   port: 8080
+  # 프론트/nginx 가 /mido/api/... 로 호출 → 컨텍스트 포함 경로와 일치
+  servlet:
+    context-path: /mido
   shutdown: graceful
   error:
     include-message: always

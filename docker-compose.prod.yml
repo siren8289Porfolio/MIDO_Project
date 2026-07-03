@@ -46,6 +46,7 @@ services:
       - mido-app
     environment:
       API_URL: http://mido-app:8080
+      API_CONTEXT_PATH: /mido
     expose:
       - "3000"
     networks:

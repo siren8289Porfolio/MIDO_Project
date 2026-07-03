@@ -8,6 +8,8 @@ services:
     restart: unless-stopped
     environment:
       API_URL: http://mido-app:8080
+      # Spring prod context-path 와 동일
+      API_CONTEXT_PATH: /mido
     expose:
       - "3000"
     networks:
