@@ -52,9 +52,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set image owner (lowercase)
-        run: echo "IMAGE_OWNER=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
-
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
@@ -62,8 +59,8 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: |
-            ghcr.io/${{ env.IMAGE_OWNER }}/mido:latest
-            ghcr.io/${{ env.IMAGE_OWNER }}/mido:${{ github.sha }}
+            ghcr.io/siren8289/portfolio-mido:latest
+            ghcr.io/siren8289/portfolio-mido:${{ github.sha }}
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1
@@ -73,6 +70,7 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd /home/ubuntu/mido
-            docker compose -f docker-compose.prod.yml pull mido-app
-            docker compose -f docker-compose.prod.yml up -d
+            cd /home/ubuntu/my-portfolio
+            docker compose pull mido-app
+            docker compose up -d mido-app
+            docker image prune -f

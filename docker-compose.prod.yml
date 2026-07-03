@@ -20,7 +20,7 @@ services:
       retries: 5
 
   mido-app:
-    image: ghcr.io/siren8289porfolio/mido:latest
+    image: ghcr.io/siren8289/portfolio-mido:latest
     container_name: mido-app
     restart: unless-stopped
     env_file:
