@@ -1,6 +1,6 @@
 import type { InputType, NextAction, RiskItem, VerificationSession, WorkContext } from "@/types";
 
-/** basePath(/mido) + nginx /mido/api/ → mido-app */
+/** nginx /mido/api/ → mido-app */
 const base = "/mido/api/verifications";
 
 export interface CreateManualPayload {
