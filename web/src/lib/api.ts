@@ -1,6 +1,9 @@
 import type { InputType, NextAction, RiskItem, VerificationSession, WorkContext } from "@/types";
 
-/** basePath(/mido) + nginx /mido/api/ → mido-app */
+/**
+ * 브라우저 → /mido/api/verifications/...
+ * nginx가 mido-app 으로내거나, mido-web Route Handler가 Spring 으로 프록시
+ */
 const base = "/mido/api/verifications";
 
 export interface CreateManualPayload {
