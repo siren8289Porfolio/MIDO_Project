@@ -66,13 +66,14 @@ if ! docker ps --format '{{.Names}}' | grep -qx mido-web; then
   exit 1
 fi
 
-# ── 2. nginx conf 패치 (host + container) ───────────────────────────────────
+# ── 2. nginx conf 패치 (host only — RO bind mount) ──────────────────────────
+# portfolio-nginx: /home/ubuntu/my-portfolio/deploy/nginx/default.conf
+#   → /etc/nginx/conf.d/default.conf (ro)
+# 호스트 파일만 수정하면 컨테이너에 즉시 반영됨. docker cp 는 RO 마운트라 실패함.
 if [ ! -f "$SNIPPET" ]; then
   log "ERROR: missing $SNIPPET"
   exit 1
 fi
-
-LOCATIONS=$(grep -v '^\s*#' "$SNIPPET" | grep -v '^\s*$' || true)
 
 patch_file() {
   local file="$1"
@@ -99,7 +100,6 @@ print(f"patched: {conf}")
 PY
 }
 
-# host 쪽 conf
 for f in \
   "$PORTFOLIO/deploy/nginx/default.conf" \
   "$PORTFOLIO/nginx/default.conf" \
@@ -108,25 +108,9 @@ do
   patch_file "$f"
 done
 
-# container 안 conf — host volume 미마운트여도 컨테이너 파일을 직접 패치
 if docker ps --format '{{.Names}}' | grep -qx portfolio-nginx; then
-  INNER_LIST=$(docker exec portfolio-nginx sh -c \
-    'grep -rl mido /etc/nginx 2>/dev/null; ls /etc/nginx/conf.d/*.conf 2>/dev/null' | sort -u)
-  if [ -z "$INNER_LIST" ]; then
-    INNER_LIST="/etc/nginx/conf.d/default.conf"
-  fi
-
-  for inner in $INNER_LIST; do
-    [ -n "$inner" ] || continue
-    if docker exec portfolio-nginx cat "$inner" >"$PORTFOLIO/deploy/nginx/.container-patch.conf" 2>/dev/null; then
-      patch_file "$PORTFOLIO/deploy/nginx/.container-patch.conf"
-      docker cp "$PORTFOLIO/deploy/nginx/.container-patch.conf" "portfolio-nginx:$inner"
-      log "patched inside container: $inner"
-    fi
-  done
-
   docker exec portfolio-nginx nginx -t
-  docker exec portfolio-nginx nginx -s reload || docker restart portfolio-nginx
+  docker exec portfolio-nginx nginx -s reload
   sleep 2
 fi
 
