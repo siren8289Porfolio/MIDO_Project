@@ -85,38 +85,15 @@ jobs:
             ghcr.io/siren8289porfolio/portfolio-mido-web:latest
             ghcr.io/siren8289porfolio/portfolio-mido-web:${{ github.sha }}
 
-      - name: Copy deploy assets to EC2
-        uses: appleboy/scp-action@v1
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          port: ${{ secrets.EC2_PORT }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          source: "deploy/ec2/docker-compose.full.yml,deploy/ec2/docker-compose.override.yml,deploy/ec2/remote-deploy.sh,deploy/ec2/setup-nginx.sh"
-          target: "/home/ubuntu/my-portfolio/mido-deploy"
-
-      - name: Copy nginx configs to EC2
-        uses: appleboy/scp-action@v1
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          port: ${{ secrets.EC2_PORT }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          source: "deploy/ec2/nginx/mido.conf,deploy/ec2/nginx/mido-locations.conf"
-          target: "/home/ubuntu/my-portfolio/mido-deploy/nginx"
-
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1
-        env:
-          SETUP_NGINX: ${{ secrets.MIDO_SETUP_NGINX }}
-          MIDO_SERVER_NAME: ${{ secrets.MIDO_SERVER_NAME }}
         with:
           host: ${{ secrets.EC2_HOST }}
           port: ${{ secrets.EC2_PORT }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          envs: SETUP_NGINX,MIDO_SERVER_NAME
           script: |
-            chmod +x /home/ubuntu/my-portfolio/mido-deploy/remote-deploy.sh
-            chmod +x /home/ubuntu/my-portfolio/mido-deploy/setup-nginx.sh
-            /home/ubuntu/my-portfolio/mido-deploy/remote-deploy.sh
+            cd /home/ubuntu/my-portfolio
+            docker compose pull mido-app
+            docker compose up -d mido-app
+            docker image prune -f
