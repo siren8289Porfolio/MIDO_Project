@@ -919,4 +919,4 @@ kubectl rollout undo / CI rollback job
 
 - [docs/PRD.md](./PRD.md) — 제품 요구사항
 - [docs/SRS.md](./SRS.md) — 시스템 요구사항
-- [spring/docs/openapi.yaml](../spring/docs/openapi.yaml) — API 명세
+- [docs/openapi.yaml](./openapi.yaml) — API 명세

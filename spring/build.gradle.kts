@@ -24,6 +24,17 @@ repositories {
 	mavenCentral()
 }
 
+sourceSets {
+	main {
+		java.setSrcDirs(listOf("src/main/verification"))
+		resources.setSrcDirs(listOf("src/main/resources"))
+	}
+	test {
+		java.setSrcDirs(listOf("src/test/verification"))
+		resources.setSrcDirs(listOf("src/test/resources"))
+	}
+}
+
 dependencies {
 	implementation("org.flywaydb:flyway-core")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")

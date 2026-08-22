@@ -457,3 +457,11 @@ DB 효율화는 `V1__efficiency_optimization.sql` Flyway migration으로 status 
 ## 24. 포트폴리오 카드용 문장
 
 > **목록 API를 DTO Projection으로 전환해 대용량 `code` LOB 컬럼을 제외하고, Context API에서도 LOB 로딩을 제거했습니다. Flyway 인덱스와 Hibernate Statistics 기반 쿼리 수 테스트를 추가해 운영 DB 반영과 성능 회귀 방지를 함께 구성했습니다.**
+
+---
+
+## 25. AI Review Governance 문서
+
+AI 생성 코드·요청 맥락, 검토 근거·리스크, 사람 승인·의사결정 이력 관리는 `qa/`에 분리했습니다.
+
+현재 기준 문서는 실행 근거가 없으므로 `PLANNED / NOT EXECUTED` 상태로 유지합니다.
