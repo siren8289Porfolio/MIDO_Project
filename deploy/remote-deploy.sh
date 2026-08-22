@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# MIDO 단일 배포 — deploy/ec2/docker-compose.yml 만 사용
+# MIDO 단일 배포 — deploy/docker-compose.yml 만 사용
 set -euo pipefail
 
 export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-portfolio}"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 COMPOSE_FILE="${SCRIPT_DIR}/docker-compose.yml"
-PORTFOLIO="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+PORTFOLIO="$(cd "${SCRIPT_DIR}/.." && pwd)"
 ENV_FILE="${PORTFOLIO}/.env"
 ENV_EXAMPLE="${SCRIPT_DIR}/.env.example"
 
@@ -43,7 +43,7 @@ EOF
   fi
 
   if [[ -f "$ENV_EXAMPLE" ]]; then
-    log "WARN: $ENV_FILE missing — creating from deploy/ec2/.env.example"
+    log "WARN: $ENV_FILE missing — creating from deploy/.env.example"
     umask 077
     cp "$ENV_EXAMPLE" "$ENV_FILE"
     return

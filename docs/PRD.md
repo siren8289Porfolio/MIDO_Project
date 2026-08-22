@@ -26,7 +26,7 @@
 | 제품/서비스명 | MIDO (AI Code Responsibility Layer) |
 | 대상 릴리즈 | MVP |
 | 문서 상태 | Draft |
-| 관련 문서 | `spring/docs/openapi.yaml`, `spring/README.md`, SRS(예정), ERD(예정) |
+| 관련 문서 | `docs/openapi.yaml`, `spring/README.md`, SRS(예정), ERD(예정) |
 
 ---
 
