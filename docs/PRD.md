@@ -396,7 +396,7 @@ DecisionLog 1:1 Approval (향후)
 | Entity 후보 | verification_data, manual_input, uploaded_file, work_context, decision_log, team_guideline, approval |
 | Key 후보 | PK: UUID; FK: verification_data_id |
 | Index 후보 | verification_data(input_type, created_at), decision_log(verification_data_id), decision_log(decided_at) |
-| 상태값 | VerificationData.status: DRAFT, READY, PROCESSING, DONE, FAILED |
+| 상태값 | VerificationData.status: DRAFT, READY, RUNNING, DONE, FAILED |
 | 이력 관리 | created_at, updated_at; DecisionLog는 append-only |
 
 ---
@@ -467,7 +467,7 @@ Use / Fix / Ignore 판단
 | POL-002 | 입력 유형별 필수값 | PASTE→rawInput, COMMIT→repoUrl+commitHash, PR→repoUrl+prNumber | FR-002 |
 | POL-003 | FILE 2단계 흐름 | FILE 모드는 manual 생성 후 별도 upload API 호출이 필요하다 | FR-001, FR-003 |
 | POL-004 | 판단 로그 불변 | DecisionLog 생성 후 수정·삭제 불가 | FR-009, NFR-007 |
-| POL-005 | 상태 전이 | DRAFT → READY → PROCESSING → DONE / FAILED | FR-001, FR-005 |
+| POL-005 | 상태 전이 | DRAFT → READY → RUNNING → DONE / FAILED | FR-001, FR-005 |
 
 ---
 
