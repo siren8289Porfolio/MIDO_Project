@@ -10,7 +10,7 @@ public class VerificationCreateResponse {
     public enum Status {
         DRAFT,
         READY,
-        PROCESSING,
+        RUNNING,
         DONE,
         FAILED
     }

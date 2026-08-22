@@ -28,14 +28,23 @@ public class WorkContext {
     @Column(name = "display_repo_url")
     private String displayRepoUrl;
 
-    @Column(name = "display_commit_hash")
+    @Column(name = "display_commit_hash", length = 128)
     private String displayCommitHash;
 
     @Column(name = "display_pr_number")
     private Integer displayPrNumber;
 
+    @Column(name = "source_system", nullable = false, length = 64)
+    private String sourceSystem = "MIDO";
+
+    @Column(name = "schema_version", nullable = false)
+    private Integer schemaVersion = 1;
+
     @Column(name = "created_at")
     private Instant createdAt;
+
+    @Column(name = "updated_at")
+    private Instant updatedAt;
 
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
@@ -47,6 +56,12 @@ public class WorkContext {
     public void setDisplayCommitHash(String displayCommitHash) { this.displayCommitHash = displayCommitHash; }
     public Integer getDisplayPrNumber() { return displayPrNumber; }
     public void setDisplayPrNumber(Integer displayPrNumber) { this.displayPrNumber = displayPrNumber; }
+    public String getSourceSystem() { return sourceSystem; }
+    public void setSourceSystem(String sourceSystem) { this.sourceSystem = sourceSystem; }
+    public Integer getSchemaVersion() { return schemaVersion; }
+    public void setSchemaVersion(Integer schemaVersion) { this.schemaVersion = schemaVersion; }
     public Instant getCreatedAt() { return createdAt; }
     public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
+    public Instant getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
 }
