@@ -11,8 +11,8 @@ CREATE TABLE IF NOT EXISTS analytics_event_schema (
     source_status VARCHAR(32) NOT NULL DEFAULT 'PLANNED',
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    CONSTRAINT chk_event_schema_name_past_tense
-        CHECK (event_name ~ '^[a-z][a-z0-9_]*ed$' OR event_name IN ('analysis_started', 'approval_requested')),
+    CONSTRAINT chk_event_schema_name
+        CHECK (event_name ~ '^[a-z][a-z0-9_]*$'),
     CONSTRAINT chk_event_schema_pii_class
         CHECK (pii_class IN ('NONE', 'PSEUDONYMIZED', 'SENSITIVE', 'RESTRICTED')),
     CONSTRAINT chk_event_schema_source_status

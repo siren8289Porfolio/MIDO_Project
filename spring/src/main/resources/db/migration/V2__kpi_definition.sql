@@ -22,6 +22,63 @@ CREATE TABLE IF NOT EXISTS analytics_metric_contract (
     CONSTRAINT chk_metric_contract_timestamp_order CHECK (created_at <= updated_at)
 );
 
+CREATE TABLE IF NOT EXISTS verification_data (
+    id UUID PRIMARY KEY,
+    input_type VARCHAR(20) NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'DRAFT',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS work_context (
+    id UUID PRIMARY KEY,
+    verification_data_id UUID NOT NULL UNIQUE REFERENCES verification_data(id)
+);
+
+CREATE TABLE IF NOT EXISTS risk_assessment (
+    id UUID PRIMARY KEY,
+    verification_data_id UUID NOT NULL REFERENCES verification_data(id),
+    severity VARCHAR(20),
+    status VARCHAR(20) NOT NULL DEFAULT 'PLANNED',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS decision_log (
+    id UUID PRIMARY KEY,
+    verification_data_id UUID NOT NULL UNIQUE REFERENCES verification_data(id),
+    decision VARCHAR(20),
+    rationale TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS approval (
+    id UUID PRIMARY KEY,
+    decision_log_id UUID NOT NULL UNIQUE REFERENCES decision_log(id),
+    approved_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+ALTER TABLE verification_data ADD COLUMN IF NOT EXISTS input_type VARCHAR(20);
+ALTER TABLE verification_data ADD COLUMN IF NOT EXISTS status VARCHAR(20) NOT NULL DEFAULT 'DRAFT';
+ALTER TABLE verification_data ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT now();
+ALTER TABLE verification_data ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT now();
+
+ALTER TABLE work_context ADD COLUMN IF NOT EXISTS verification_data_id UUID;
+
+ALTER TABLE risk_assessment ADD COLUMN IF NOT EXISTS verification_data_id UUID;
+ALTER TABLE risk_assessment ADD COLUMN IF NOT EXISTS severity VARCHAR(20);
+ALTER TABLE risk_assessment ADD COLUMN IF NOT EXISTS status VARCHAR(20) NOT NULL DEFAULT 'PLANNED';
+ALTER TABLE risk_assessment ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT now();
+ALTER TABLE risk_assessment ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT now();
+
+ALTER TABLE decision_log ADD COLUMN IF NOT EXISTS verification_data_id UUID;
+ALTER TABLE decision_log ADD COLUMN IF NOT EXISTS decision VARCHAR(20);
+ALTER TABLE decision_log ADD COLUMN IF NOT EXISTS rationale TEXT;
+ALTER TABLE decision_log ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT now();
+
+ALTER TABLE approval ADD COLUMN IF NOT EXISTS decision_log_id UUID;
+ALTER TABLE approval ADD COLUMN IF NOT EXISTS approved_at TIMESTAMPTZ NOT NULL DEFAULT now();
+
 CREATE TABLE IF NOT EXISTS analytics_guardrail_metric (
     guardrail_id VARCHAR(32) PRIMARY KEY,
     guardrail_name VARCHAR(255) NOT NULL,
