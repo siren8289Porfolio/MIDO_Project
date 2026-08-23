@@ -12,6 +12,172 @@ API 응답 최적화              대시보드 / 리포트
 
 ---
 
+## 0. 프로젝트 폴더/파일 구조
+
+```text
+MIDO_Project/
+├── README.md
+├── Dockerfile
+│
+├── docs/
+│   ├── DATA_PERFORMANCE_GUIDE.md
+│   ├── DB_EFFICIENCY_SUMMARY.md
+│   ├── EFFICIENCY_SUMMARY.md
+│   ├── ENGINEERING_GUIDE.md
+│   ├── PRD.md
+│   ├── SRS.md
+│   └── openapi.yaml
+│
+├── qa/
+│   ├── README.md
+│   ├── QA-02-quality-requirements-traceability.md
+│   ├── QA-03-review-inspection-report.md
+│   ├── QA-05-test-case-execution.md
+│   ├── QA-06-defect-regression-report.md
+│   ├── approval-audit-log-template.md
+│   ├── defect-log-template.md
+│   ├── regression-checklist.md
+│   └── severity-policy.md
+│
+├── deploy/
+│   ├── docker-compose.yml
+│   ├── remote-deploy.sh
+│   └── nginx/
+│       ├── default.conf
+│       └── mido-locations.conf
+│
+├── nginx/
+│   └── mido.conf.example
+│
+├── web/
+│   ├── README.md
+│   ├── Dockerfile
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── next.config.ts
+│   ├── tsconfig.json
+│   ├── postcss.config.mjs
+│   ├── next-env.d.ts
+│   │
+│   ├── app/
+│   │   ├── globals.css
+│   │   ├── layout.tsx
+│   │   ├── page.tsx
+│   │   └── api/
+│   │       └── verifications-route.ts
+│   │
+│   ├── components/
+│   │   ├── DecisionLogStep.tsx
+│   │   ├── JudgmentStep.tsx
+│   │   ├── ManualInputStep.tsx
+│   │   ├── Stepper.tsx
+│   │   └── WorkContextStep.tsx
+│   │
+│   ├── lib/
+│   │   └── api.ts
+│   │
+│   └── types/
+│       └── index.ts
+│
+└── spring/
+    ├── README.md
+    ├── build.gradle.kts
+    ├── settings.gradle.kts
+    ├── gradlew
+    ├── gradlew.bat
+    │
+    ├── gradle/
+    │   └── wrapper/
+    │       ├── gradle-wrapper.jar
+    │       └── gradle-wrapper.properties
+    │
+    ├── app/
+    │   └── VerificationApplication.java
+    │
+    ├── common/
+    │   ├── config/
+    │   │   └── WebConfig.java
+    │   ├── dto/
+    │   │   └── ApiResponseVoid.java
+    │   ├── entity/
+    │   │   ├── VerificationData.java
+    │   │   └── VerificationStatus.java
+    │   └── repository/
+    │       └── VerificationDataRepository.java
+    │
+    ├── manual/
+    │   ├── controller/
+    │   │   └── ManualInputController.java
+    │   ├── dto/
+    │   │   ├── IdResponse.java
+    │   │   ├── ManualInputRequest.java
+    │   │   └── VerificationCreateResponse.java
+    │   ├── entity/
+    │   │   └── ManualInput.java
+    │   ├── repository/
+    │   │   └── ManualInputRepository.java
+    │   └── service/
+    │       └── ManualInputService.java
+    │
+    ├── upload/
+    │   ├── controller/
+    │   │   └── UploadController.java
+    │   ├── entity/
+    │   │   └── UploadedFile.java
+    │   ├── repository/
+    │   │   └── UploadedFileRepository.java
+    │   └── service/
+    │       └── UploadService.java
+    │
+    ├── context/
+    │   ├── controller/
+    │   │   └── WorkContextController.java
+    │   ├── dto/
+    │   │   └── WorkContextResponse.java
+    │   ├── entity/
+    │   │   └── WorkContext.java
+    │   ├── repository/
+    │   │   └── WorkContextRepository.java
+    │   └── service/
+    │       └── WorkContextService.java
+    │
+    ├── analysis/
+    │   ├── dependency/
+    │   │   ├── DependencyExtractor.java
+    │   │   ├── DependencyManifest.java
+    │   │   ├── DependencyManifestParser.java
+    │   │   ├── GradleDependencyParser.java
+    │   │   ├── MavenPomDependencyParser.java
+    │   │   ├── PackageCoordinate.java
+    │   │   └── PackageJsonDependencyParser.java
+    │   │
+    │   └── risk/
+    │       ├── AiConfidence.java
+    │       ├── AiOutputStatus.java
+    │       ├── AiRecommendation.java
+    │       ├── EvidenceSource.java
+    │       └── EvidenceStatus.java
+    │
+    ├── resources/
+    │   ├── application.yml
+    │   ├── application-prod.yml
+    │   └── migration/
+    │       ├── V1__analytics_requirements.sql
+    │       ├── V2__kpi_definition.sql
+    │       ├── V3__analysis_design.sql
+    │       ├── V4__event_data_architecture.sql
+    │       ├── V5__data_requirements.sql
+    │       ├── V6__vulnerability_risk_evidence.sql
+    │       └── V7__ai_risk_evidence_contract.sql
+    │
+    └── test/
+        ├── application-test.yml
+        ├── VerificationApplicationTests.java
+        └── DependencyParserTest.java
+```
+
+---
+
 ## 1. 효율화 지표 잡기
 
 측정하지 않으면 개선할 수 없다. MIDO에서 우선 추적할 지표:
