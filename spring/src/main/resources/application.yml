@@ -33,3 +33,9 @@ logging:
     com.mido.verification: DEBUG
     org.springframework.web: INFO
     org.hibernate.SQL: DEBUG
+
+mido:
+  ai:
+    base-url: http://localhost:8090
+    connect-timeout: 3s
+    read-timeout: 15s

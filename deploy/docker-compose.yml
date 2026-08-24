@@ -28,13 +28,27 @@ services:
     depends_on:
       mido-db:
         condition: service_healthy
+      mido-ai:
+        condition: service_started
     environment:
       SPRING_PROFILES_ACTIVE: prod
       DB_URL: jdbc:postgresql://mido-db:5432/mido
       DB_USERNAME: ${DB_USERNAME:-postgres}
       DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      MIDO_AI_BASE_URL: http://mido-ai:8090
     expose:
       - "8080"
+    networks:
+      - portfolio-network
+
+  mido-ai:
+    build:
+      context: ../ai-service
+      dockerfile: Dockerfile
+    container_name: mido-ai
+    restart: unless-stopped
+    expose:
+      - "8090"
     networks:
       - portfolio-network
 

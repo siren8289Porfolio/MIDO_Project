@@ -36,3 +36,9 @@ logging:
     com.mido.verification: INFO
     org.springframework.web: INFO
     org.hibernate.SQL: WARN
+
+mido:
+  ai:
+    base-url: ${MIDO_AI_BASE_URL:http://mido-ai:8090}
+    connect-timeout: 3s
+    read-timeout: 15s
