@@ -1,4 +1,4 @@
-import type { InputType, NextAction, RiskItem, VerificationSession, WorkContext } from "@/types";
+import type { InputType, NextAction, RiskAnalyzeResponse, RiskItem, VerificationSession, WorkContext } from "@/types";
 
 /**
  * 브라우저 → /mido/api/verifications/...
@@ -59,7 +59,14 @@ export async function getWorkContext(verificationId: string): Promise<WorkContex
   return handleResponse<WorkContext>(res);
 }
 
-/** MVP-2 전까지 프론트 목 데이터 */
+export async function analyzeVerification(verificationId: string): Promise<RiskAnalyzeResponse> {
+  const res = await fetch(`${base}/${verificationId}/analyze`, {
+    method: "POST",
+  });
+  return handleResponse<RiskAnalyzeResponse>(res);
+}
+
+/** @deprecated Use analyzeVerification — kept for offline fallback */
 export function mockRisks(code: string): RiskItem[] {
   if (!code.length) return [];
   return [

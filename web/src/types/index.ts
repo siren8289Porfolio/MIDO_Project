@@ -28,9 +28,25 @@ export interface WorkContext {
 
 export interface RiskItem {
   id: string;
-  severity: "LOW" | "MEDIUM" | "HIGH";
+  severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL" | "UNKNOWN";
   title: string;
   description: string;
+  cveId?: string | null;
+  ghsaId?: string | null;
+  packageName?: string | null;
+  packageVersion?: string | null;
+  source?: string | null;
+  sourceUrl?: string | null;
+  evidenceStatus?: string | null;
+}
+
+export interface RiskAnalyzeResponse {
+  analysisRunId: string;
+  outputStatus: string;
+  confidence: string;
+  recommendation: string;
+  explanation?: string | null;
+  risks: RiskItem[];
 }
 
 export interface DecisionRecord {

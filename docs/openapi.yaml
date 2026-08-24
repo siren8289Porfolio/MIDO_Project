@@ -82,6 +82,32 @@ paths:
               schema:
                 $ref: '#/components/schemas/WorkContextResponse'
 
+  /api/verifications/{id}/analyze:
+    post:
+      summary: Run AI risk analysis for a verification
+      operationId: analyzeVerificationRisk
+      tags:
+        - Verification
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: VerificationData ID
+      responses:
+        '200':
+          description: Risk analysis result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RiskAnalyzeResponse'
+        '404':
+          description: Verification not found
+        '502':
+          description: External AI service failure
+
 components:
   schemas:
     ManualInputRequest:
@@ -146,3 +172,44 @@ components:
           type: integer
           nullable: true
           description: PR number to display in summary
+
+    RiskItemResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        severity:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        cveId:
+          type: string
+          nullable: true
+        sourceUrl:
+          type: string
+          nullable: true
+
+    RiskAnalyzeResponse:
+      type: object
+      properties:
+        analysisRunId:
+          type: string
+          format: uuid
+        outputStatus:
+          type: string
+        confidence:
+          type: string
+        recommendation:
+          type: string
+        explanation:
+          type: string
+          nullable: true
+        risks:
+          type: array
+          items:
+            $ref: '#/components/schemas/RiskItemResponse'
+      required:
+        - analysisRunId
+        - risks
