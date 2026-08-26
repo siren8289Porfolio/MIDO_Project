@@ -53,7 +53,11 @@ DA-05 "Key Insights & Dashboard"가 요구하는 라이브 데이터 소스도 �
 | `../spring/src/main/resources/db/migration/V4__event_data_architecture.sql` | event schema, event property, metric trace, contract test, schema change 정의 |
 | `../spring/src/main/resources/db/migration/V5__data_requirements.sql` | `verification_data.status` 컬럼, DA-02 §6에서 설계한 인덱스 전체(§6.1) 실제 적용 |
 
-## 4. 상위 기준 문서
+## 4. DB 산출물 인덱스
+
+Flyway/OLTP 스키마 위치는 `../db/DB-01-document-index.md`, `../db/DB-03-migration-index.md`를 본다.
+
+## 5. 상위 기준 문서
 
 - `../docs/PRD.md`
 - `../docs/SRS.md`
