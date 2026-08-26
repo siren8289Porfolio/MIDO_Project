@@ -1,4 +1,4 @@
-package com.mido.verification.analysis.risk;
+package com.mido.verification.de.risk;
 
 public enum AiOutputStatus {
     SUPPORTED,

@@ -1,4 +1,4 @@
-package com.mido.verification.analysis.dependency;
+package com.mido.verification.de.dependency;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
