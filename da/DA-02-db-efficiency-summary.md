@@ -56,13 +56,13 @@ verification_data (중심)
 
 ### 2.3 현재 갭 (DB)
 
-| Gap | 문제 | 영향 |
-| --- | --- | --- |
-| **G-001** | `status` 컬럼 없음 (DTO만) | status 필터·인덱스 불가 |
-| **ddl-auto: update** | Flyway 미사용 | 환경별 스키마 불일치 위험 |
-| **인덱스 없음** | Hibernate auto만 | 목록 조회 Seq Scan 예상 |
-| **FK 제약 미명시** | JPA 관계만 | DB 레벨 무결성 약함 |
-| **code LOB 중복** | verification_data.code + uploaded_file.file_content | 스토리지 2배 |
+| Gap | 문제 | 영향 | 상태 |
+| --- | --- | --- | --- |
+| **G-001** | `status` 컬럼 없음 (DTO만) | status 필터·인덱스 불가 | ✅ 해결 (V2, V5 마이그레이션) |
+| **ddl-auto: update** | Flyway 미사용 | 환경별 스키마 불일치 위험 | ✅ 해결 (`ddl-auto: validate` + Flyway) |
+| **인덱스 없음** | Hibernate auto만 | 목록 조회 Seq Scan 예상 | ✅ 해결 (V5, §6.1 DDL 반영) |
+| **FK 제약 미명시** | JPA 관계만 | DB 레벨 무결성 약함 | ⚠️ 부분 (JPA 관계 기준, DB FK 제약은 추가 검토 필요) |
+| **code LOB 중복** | verification_data.code + uploaded_file.file_content | 스토리지 2배 | ❌ 미해결 |
 
 ---
 
@@ -135,27 +135,32 @@ work_context.display_*                              ← 생성 시점 스냅샷 
 | POST /manual | INSERT × 3 (트랜잭션) | 3 |
 | POST /upload | SELECT + INSERT + UPDATE | 3 |
 | GET /context | work_context 1건 + (FILE 시 file 1건) | ≤ 2 |
-| GET /list (예정) | Projection + pagination | 1 |
+| GET /verifications (list) | Projection + pagination + status 필터 | 1 |
 | GET /{id} 상세 (예정) | Fetch Join 또는 2~3 쿼리 | ≤ 3 |
 
 ### 5.3 LOB 핵심 규칙
 
 > **`verification_data.code`, `uploaded_file.file_content`는 목록·통계 쿼리에 절대 포함하지 않는다.**
 
+`GET /api/verifications`에 적용 완료 (`VerificationListController` → `VerificationListService` → `VerificationDataRepository#findSummaries`):
+
 ```java
-// 목록용 Projection (예정)
 @Query("""
-    SELECT new ...VerificationSummary(v.id, v.inputType, v.status, v.createdAt)
-    FROM VerificationData v WHERE v.status = :status
+    SELECT new com.mido.verification.list.dto.VerificationSummaryResponse(
+        v.id, v.inputType, v.status, v.createdAt)
+    FROM VerificationData v
+    WHERE (:status IS NULL OR v.status = :status)
     """)
-Page<VerificationSummary> findSummaries(...);
+Page<VerificationSummaryResponse> findSummaries(@Param("status") VerificationStatus status, Pageable pageable);
 ```
+
+`VerificationSummaryResponse`는 `code` 필드를 아예 가지지 않아 LOB이 목록 응답에 섞일 수 없다. `status` 필터가 있을 때는 `idx_verification_status_created(status, created_at DESC)` 인덱스를 그대로 탄다.
 
 ---
 
-## 6. 인덱스 설계 (📋 설계만, 미적용)
+## 6. 인덱스 설계 (✅ 적용 완료, `V5__data_requirements.sql`)
 
-### 6.1 권장 DDL
+### 6.1 적용된 DDL
 
 ```sql
 -- 목록: status + 최신순 (가장 중요)
@@ -316,34 +321,34 @@ ALTER TABLE verification_data
 
 ```
 Phase 1 — 스키마 기반
-  ① Flyway 도입 (ddl-auto: validate)
-  ② status 컬럼 추가 (G-001)
-  ③ FK / UNIQUE / CHECK 제약 DB 레벨 추가
+  ① Flyway 도입 (ddl-auto: validate)          ✅ 완료
+  ② status 컬럼 추가 (G-001)                  ✅ 완료
+  ③ FK / UNIQUE / CHECK 제약 DB 레벨 추가      ⚠️ 부분 (CHECK 제약 위주, FK는 JPA 관계 기준)
 
 Phase 2 — 쿼리 성능
-  ④ list API용 인덱스 생성
-  ⑤ Projection + Pagination
-  ⑥ EXPLAIN ANALYZE로 Index Scan 확인
-  ⑦ N+1 제거 (Fetch Join / 쿼리 수 테스트)
+  ④ list API용 인덱스 생성                     ✅ 완료 (V5)
+  ⑤ Projection + Pagination                   ✅ 완료 (GET /api/verifications)
+  ⑥ EXPLAIN ANALYZE로 Index Scan 확인          ❌ 미실행
+  ⑦ N+1 제거 (Fetch Join / 쿼리 수 테스트)      ❌ 미착수
 
 Phase 3 — 분리 · 확장
-  ⑧ decision_log, risk_assessment 테이블
-  ⑨ summary_daily_decision + 증분 ETL
-  ⑩ 분석 DB Star Schema
-  ⑪ 파티셔닝 / LOB 아카이브 (필요 시)
+  ⑧ decision_log, risk_assessment 테이블       ⚠️ risk_assessment는 V2/V6 이후 존재, decision_log 미구현
+  ⑨ summary_daily_decision + 증분 ETL          ❌ 미착수
+  ⑩ 분석 DB Star Schema                        ❌ 미착수
+  ⑪ 파티셔닝 / LOB 아카이브 (필요 시)           ❌ 미착수
 ```
 
 ---
 
 ## 13. 다음 할 일 Top 5 (DB)
 
-| # | 작업 | 이유 |
-| --- | --- | --- |
-| 1 | **Flyway V1~V3 migration** | 스키마 버전 관리, status 컬럼 |
-| 2 | **인덱스 DDL** | 목록 Seq Scan 방지 |
-| 3 | **list API + Projection** | LOB 읽기 제거 |
-| 4 | **FK/UNIQUE 제약** | 무결성 + 중복 판단 방지 |
-| 5 | **EXPLAIN + 쿼리 수 테스트** | 100ms, N+1 목표 검증 |
+| # | 작업 | 이유 | 상태 |
+| --- | --- | --- | --- |
+| 1 | ~~Flyway V1~V3 migration~~ | 스키마 버전 관리, status 컬럼 | ✅ 완료 |
+| 2 | ~~인덱스 DDL~~ | 목록 Seq Scan 방지 | ✅ 완료 |
+| 3 | ~~list API + Projection~~ | LOB 읽기 제거 | ✅ 완료 (`GET /api/verifications`) |
+| 4 | **EXPLAIN + 쿼리 수 테스트** | 100ms, N+1 목표 검증 | ❌ 다음 우선순위 |
+| 5 | **decision_log 테이블 + append-only 제약** | 판단 이력 분리, 중복 판단 방지 | ❌ 다음 우선순위 |
 
 ---
 

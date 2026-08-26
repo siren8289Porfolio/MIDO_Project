@@ -45,24 +45,25 @@
 
 ### 3.1 코드 / API
 
-| ID | 항목 | 내용 |
-| --- | --- | --- |
-| G-002 | GlobalExceptionHandler | 표준 ERR 응답, 400/404 정합 |
-| — | InputType enum | switch 문자열 오타 방지 |
-| — | Projection DTO | 목록 API에서 LOB 제외 |
-| — | Fetch Join | 상세 조회 N+1 방지 |
-| — | `@Timed` / Micrometer | API p95 측정 |
+| ID | 항목 | 내용 | 상태 |
+| --- | --- | --- | --- |
+| G-002 | GlobalExceptionHandler | 표준 ERR 응답, 400/404 정합 | ✅ 완료 |
+| — | Projection DTO | 목록 API에서 LOB 제외 | ✅ 완료 (`VerificationSummaryResponse`) |
+| — | InputType enum | switch 문자열 오타 방지 | ❌ 미착수 |
+| — | Fetch Join | 상세 조회 N+1 방지 | ❌ 미착수 (상세 조회 API 자체 미구현) |
+| — | `@Timed` / Micrometer | API p95 측정 | ❌ 미착수 |
 
-### 3.2 DB / 쿼리
+### 3.2 DB / 쿼리 (✅ 대부분 적용 완료)
 
-| ID | 항목 | 내용 |
-| --- | --- | --- |
-| G-001 | `status` DB 컬럼 | DTO만 존재 → Flyway V3 |
-| — | 인덱스 | `(status, created_at DESC)`, FK UNIQUE |
-| — | Partial Index | `WHERE status = 'DRAFT'` |
-| — | EXPLAIN ANALYZE | list API 추가 시 필수 |
-| — | Pagination | `Pageable`, LIMIT 20 |
-| — | `ddl-auto: update` → Flyway | 스키마 버전 관리 |
+| ID | 항목 | 내용 | 상태 |
+| --- | --- | --- | --- |
+| G-001 | `status` DB 컬럼 | DTO만 존재 → Flyway V2/V5 | ✅ 완료 |
+| — | 인덱스 | `(status, created_at DESC)`, FK UNIQUE | ✅ 완료 (V5) |
+| — | Partial Index | `WHERE status = 'DRAFT'` | ✅ 완료 (V5) |
+| — | Pagination | `Pageable`, LIMIT 20 | ✅ 완료 (`GET /api/verifications`) |
+| — | Projection (code 제외) | 목록 API에서 LOB 제외 | ✅ 완료 (`VerificationSummaryResponse`) |
+| — | `ddl-auto: update` → Flyway | 스키마 버전 관리 | ✅ 완료 |
+| — | EXPLAIN ANALYZE | list API 추가 시 필수 | ❌ 미실행 |
 
 ### 3.3 데이터 모델
 
@@ -91,21 +92,22 @@
 
 ```
 Phase 1 — 지금 (MVP-1 마무리)
-  ① 테이블 책임 / PK·FK 정리          ← 문서 ✅, Flyway ❌
-  ② status 컬럼 추가 (G-001)         ← ❌
-  ③ GlobalExceptionHandler (G-002)   ← ❌
+  ① 테이블 책임 / PK·FK 정리          ← 문서 ✅, Flyway ✅
+  ② status 컬럼 추가 (G-001)         ← ✅
+  ③ GlobalExceptionHandler (G-002)   ← ✅
 
 Phase 2 — MVP-2
-  ④ list API + EXPLAIN + 인덱스      ← ❌
-  ⑤ Pagination                       ← ❌
-  ⑥ Projection (code LOB 제외)       ← ❌
-  ⑦ DecisionLog / RiskAssessment     ← ❌
-  ⑧ 쿼리 수 테스트 (N+1 회귀 방지)   ← ❌
+  ④ list API + 인덱스                ← ✅ (GET /api/verifications, V5 인덱스)
+  ⑤ Pagination                       ← ✅
+  ⑥ Projection (code LOB 제외)       ← ✅
+  ⑦ EXPLAIN ANALYZE                  ← ❌
+  ⑧ DecisionLog / RiskAssessment     ← ⚠️ RiskAssessment만 존재, DecisionLog ❌
+  ⑨ 쿼리 수 테스트 (N+1 회귀 방지)   ← ❌
 
 Phase 3 — v1.0
-  ⑨ summary table / 증분 ETL         ← ❌
-  ⑩ RBAC, Git 연동                   ← ❌
-  ⑪ 모니터링 (p95, freshness)        ← ❌
+  ⑩ summary table / 증분 ETL         ← ❌
+  ⑪ RBAC, Git 연동                   ← ❌
+  ⑫ 모니터링 (p95, freshness)        ← ❌
 ```
 
 ---
@@ -116,12 +118,12 @@ Phase 3 — v1.0
 | --- | --- | --- |
 | **Java / Clean Code** | 작은 책임, DTO 분리, DI | ✅ 기본 적용 |
 | **Spring 계층** | Controller 얇게, Service에 로직 | ✅ 적용 |
-| **JPA / Repository** | Query Method, N+1 주의 | ⚠️ 기본만 |
-| **SQL** | SELECT 필요 컬럼만, LOB 목록 제외 | ❌ list API 없음 |
-| **인덱스** | WHERE·JOIN·ORDER BY 컬럼 | ❌ 미생성 |
+| **JPA / Repository** | Query Method, N+1 주의 | ⚠️ 기본 + Projection 쿼리 추가 |
+| **SQL** | SELECT 필요 컬럼만, LOB 목록 제외 | ✅ list API 적용 (`GET /api/verifications`) |
+| **인덱스** | WHERE·JOIN·ORDER BY 컬럼 | ✅ V5에서 생성 |
 | **데이터 모델** | 테이블 책임 분리, 정규화 | ✅ 구조 양호 |
 | **분석 DB** | Star Schema, Summary Table | 📋 설계만 |
-| **테스트** | TC + 쿼리 수 assertion | ❌ contextLoads만 |
+| **테스트** | TC + 쿼리 수 assertion | ⚠️ 컨트롤러 슬라이스 테스트 추가, 쿼리 수 assertion은 아직 ❌ |
 | **운영** | Actuator, CI, Flyway, Docker | ❌ 대부분 미적용 |
 
 ---
@@ -154,11 +156,11 @@ Phase 3 — v1.0
 
 ## 8. 다음에 할 일 (Top 5)
 
-1. **Flyway + `status` 컬럼** — G-001, 인덱스 전제 조건
-2. **GlobalExceptionHandler** — G-002, 400/404 정합
-3. **list API + Projection + Pagination** — LOB·전체 스캔 방지
-4. **인덱스 DDL** — `(status, created_at DESC)` + FK UNIQUE
-5. **통합 테스트 + 쿼리 수 검증** — TC-001~008, N+1 회귀 방지
+1. ~~Flyway + `status` 컬럼~~ — ✅ 완료 (G-001)
+2. ~~GlobalExceptionHandler~~ — ✅ 완료 (G-002)
+3. ~~list API + Projection + Pagination~~ — ✅ 완료 (`GET /api/verifications`)
+4. **EXPLAIN ANALYZE + 쿼리 수 검증** — 100ms, N+1 목표 실측 (다음 우선순위)
+5. **DecisionLog 테이블 + append-only 제약** — G-004, 판단 이력 분리 (다음 우선순위)
 
 ---
 
