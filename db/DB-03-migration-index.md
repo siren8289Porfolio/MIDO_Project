@@ -40,5 +40,5 @@ DA 대시보드가 읽는 `mart_daily_product_metrics` 등은 V1~V5 계열에 �
 | 구분 | 경로 |
 | --- | --- |
 | OLTP 엔티티 | `../spring/src/main/verification/{common,manual,upload,context}/entity/` |
-| Risk evidence 파서/계약 타입 | `../spring/src/main/verification/analysis/{dependency,risk}/` (de 폴더화 대상) |
+| Risk evidence 파서/계약 타입 | `../spring/src/main/verification/de/{dependency,risk}/` |
 | Analytics 서빙 API | `../spring/src/main/verification/da/` |

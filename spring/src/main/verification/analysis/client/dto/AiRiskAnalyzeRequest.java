@@ -1,10 +1,10 @@
 package com.mido.verification.analysis.client.dto;
 
-import com.mido.verification.analysis.risk.AiConfidence;
-import com.mido.verification.analysis.risk.AiOutputStatus;
-import com.mido.verification.analysis.risk.AiRecommendation;
-import com.mido.verification.analysis.risk.EvidenceSource;
-import com.mido.verification.analysis.risk.EvidenceStatus;
+import com.mido.verification.de.risk.AiConfidence;
+import com.mido.verification.de.risk.AiOutputStatus;
+import com.mido.verification.de.risk.AiRecommendation;
+import com.mido.verification.de.risk.EvidenceSource;
+import com.mido.verification.de.risk.EvidenceStatus;
 
 import java.util.List;
 import java.util.UUID;

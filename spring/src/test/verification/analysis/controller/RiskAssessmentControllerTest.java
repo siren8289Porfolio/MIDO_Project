@@ -2,9 +2,9 @@ package com.mido.verification.analysis.controller;
 
 import com.mido.verification.analysis.dto.RiskAnalyzeApiResponse;
 import com.mido.verification.analysis.dto.RiskItemResponse;
-import com.mido.verification.analysis.risk.AiConfidence;
-import com.mido.verification.analysis.risk.AiOutputStatus;
-import com.mido.verification.analysis.risk.AiRecommendation;
+import com.mido.verification.de.risk.AiConfidence;
+import com.mido.verification.de.risk.AiOutputStatus;
+import com.mido.verification.de.risk.AiRecommendation;
 import com.mido.verification.analysis.service.RiskAssessmentService;
 import com.mido.verification.global.exception.GlobalExceptionHandler;
 import org.junit.jupiter.api.Test;

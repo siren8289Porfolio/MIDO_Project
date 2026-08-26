@@ -1,4 +1,4 @@
-package com.mido.verification.analysis.dependency;
+package com.mido.verification.de.dependency;
 
 import java.util.List;
 

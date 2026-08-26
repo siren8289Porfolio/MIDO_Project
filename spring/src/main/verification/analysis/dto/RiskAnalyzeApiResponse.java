@@ -1,8 +1,8 @@
 package com.mido.verification.analysis.dto;
 
-import com.mido.verification.analysis.risk.AiConfidence;
-import com.mido.verification.analysis.risk.AiOutputStatus;
-import com.mido.verification.analysis.risk.AiRecommendation;
+import com.mido.verification.de.risk.AiConfidence;
+import com.mido.verification.de.risk.AiOutputStatus;
+import com.mido.verification.de.risk.AiRecommendation;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.mido.verification.analysis.dependency;
+package com.mido.verification.de.dependency;
 
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;

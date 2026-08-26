@@ -142,6 +142,12 @@ MIDO_Project/
     │       └── WorkContextService.java
     │
     ├── analysis/
+    │   ├── client/
+    │   ├── controller/
+    │   ├── dto/
+    │   └── service/
+    │
+    ├── de/
     │   ├── dependency/
     │   │   ├── DependencyExtractor.java
     │   │   ├── DependencyManifest.java
