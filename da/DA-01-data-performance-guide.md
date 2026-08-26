@@ -934,6 +934,6 @@ void getContext_executesSingleQuery() {
 
 ## 참고 문서
 
-- [docs/SRS.md](./SRS.md) — 데이터 요구사항, NFR-001
-- [docs/PRD.md](./PRD.md) — 성공 지표 M-001~M-005
-- [docs/ENGINEERING_GUIDE.md](./ENGINEERING_GUIDE.md) — JPA, EXPLAIN, Flyway
+- [docs/SRS.md](../docs/SRS.md) — 데이터 요구사항, NFR-001
+- [docs/PRD.md](../docs/PRD.md) — 성공 지표 M-001~M-005
+- [docs/ENGINEERING_GUIDE.md](../docs/ENGINEERING_GUIDE.md) — JPA, EXPLAIN, Flyway
