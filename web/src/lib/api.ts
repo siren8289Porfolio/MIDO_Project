@@ -13,8 +13,8 @@ import type {
  * nginx가 mido-app 으로내거나, mido-web Route Handler가 Spring 으로 프록시
  */
 const base = "/mido/api/verifications";
-/** 브라우저 → /mido/api/dashboard/... → next.config.ts rewrites()가 Spring으로 프록시 */
-const dashboardBase = "/mido/api/dashboard";
+/** 브라우저 → /mido/api/da/dashboard/... → next.config.ts rewrites()가 Spring으로 프록시 */
+const dashboardBase = "/mido/api/da/dashboard";
 
 export interface CreateManualPayload {
   inputType: InputType;

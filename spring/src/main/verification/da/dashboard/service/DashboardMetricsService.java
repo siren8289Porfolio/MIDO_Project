@@ -1,7 +1,7 @@
-package com.mido.verification.dashboard.service;
+package com.mido.verification.da.dashboard.service;
 
-import com.mido.verification.dashboard.dto.DailyProductMetricResponse;
-import com.mido.verification.dashboard.repository.DashboardMetricsRepository;
+import com.mido.verification.da.dashboard.dto.DailyProductMetricResponse;
+import com.mido.verification.da.dashboard.repository.DashboardMetricsRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

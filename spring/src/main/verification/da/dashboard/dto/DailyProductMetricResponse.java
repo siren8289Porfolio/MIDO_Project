@@ -1,4 +1,4 @@
-package com.mido.verification.dashboard.dto;
+package com.mido.verification.da.dashboard.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
