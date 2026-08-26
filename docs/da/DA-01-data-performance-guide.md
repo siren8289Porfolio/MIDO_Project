@@ -20,9 +20,11 @@ MIDO_Project/
 ├── Dockerfile
 │
 ├── docs/
-│   ├── DATA_PERFORMANCE_GUIDE.md
-│   ├── DB_EFFICIENCY_SUMMARY.md
-│   ├── EFFICIENCY_SUMMARY.md
+│   ├── da/
+│   │   ├── DA-01-data-performance-guide.md
+│   │   ├── DA-02-db-efficiency-summary.md
+│   │   ├── DA-03-efficiency-summary.md
+│   │   └── DA-04-document-index.md
 │   ├── ENGINEERING_GUIDE.md
 │   ├── PRD.md
 │   ├── SRS.md
@@ -934,6 +936,6 @@ void getContext_executesSingleQuery() {
 
 ## 참고 문서
 
-- [docs/SRS.md](./SRS.md) — 데이터 요구사항, NFR-001
-- [docs/PRD.md](./PRD.md) — 성공 지표 M-001~M-005
-- [docs/ENGINEERING_GUIDE.md](./ENGINEERING_GUIDE.md) — JPA, EXPLAIN, Flyway
+- [SRS.md](../SRS.md) — 데이터 요구사항, NFR-001
+- [PRD.md](../PRD.md) — 성공 지표 M-001~M-005
+- [ENGINEERING_GUIDE.md](../ENGINEERING_GUIDE.md) — JPA, EXPLAIN, Flyway

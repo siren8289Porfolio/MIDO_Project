@@ -1,6 +1,6 @@
 # MIDO 코드·데이터 효율화 정리
 
-`ENGINEERING_GUIDE.md`, `DATA_PERFORMANCE_GUIDE.md`, `SRS.md`에 흩어진 효율화 내용을 한곳에 모은 요약 문서.
+`../ENGINEERING_GUIDE.md`, `DA-01-data-performance-guide.md`, `../SRS.md`에 흩어진 효율화 내용을 한곳에 모은 요약 문서.
 
 ---
 
@@ -166,6 +166,6 @@ Phase 3 — v1.0
 
 | 문서 | 내용 |
 | --- | --- |
-| [ENGINEERING_GUIDE.md](./ENGINEERING_GUIDE.md) | Java, Spring, JPA, 테스트, CI/CD, 운영 |
-| [DATA_PERFORMANCE_GUIDE.md](./DATA_PERFORMANCE_GUIDE.md) | DB, 인덱스, ETL, Airflow, 모니터링 |
-| [SRS.md](./SRS.md) | NFR, Gap, TC |
+| [ENGINEERING_GUIDE.md](../ENGINEERING_GUIDE.md) | Java, Spring, JPA, 테스트, CI/CD, 운영 |
+| [DA-01-data-performance-guide.md](./DA-01-data-performance-guide.md) | DB, 인덱스, ETL, Airflow, 모니터링 |
+| [SRS.md](../SRS.md) | NFR, Gap, TC |

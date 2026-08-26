@@ -351,6 +351,6 @@ Phase 3 — 분리 · 확장
 
 | 문서 | 내용 |
 | --- | --- |
-| [DATA_PERFORMANCE_GUIDE.md](./DATA_PERFORMANCE_GUIDE.md) | 상세 (파티셔닝, Airflow, Spark) |
-| [EFFICIENCY_SUMMARY.md](./EFFICIENCY_SUMMARY.md) | 코드+DB 통합 요약 |
-| [SRS.md](./SRS.md) §7 데이터 요구사항 |
+| [DA-01-data-performance-guide.md](./DA-01-data-performance-guide.md) | 상세 (파티셔닝, Airflow, Spark) |
+| [DA-03-efficiency-summary.md](./DA-03-efficiency-summary.md) | 코드+DB 통합 요약 |
+| [SRS.md](../SRS.md) §7 데이터 요구사항 |
