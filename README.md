@@ -465,4 +465,6 @@ DB 효율화는 `V1__efficiency_optimization.sql` Flyway migration으로 status 
 
 AI 생성 코드·요청 맥락, 검토 근거·리스크, 사람 승인·의사결정 이력 관리는 `qa/`에 분리했습니다.
 
+DB 스키마·Flyway 마이그레이션·엔티티 인덱스는 `db/`에 분리했습니다 (`DB-01`~`DB-03`).
+
 현재 기준 문서는 실행 근거가 없으므로 `PLANNED / NOT EXECUTED` 상태로 유지합니다.
