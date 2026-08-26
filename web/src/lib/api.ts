@@ -1,10 +1,20 @@
-import type { InputType, NextAction, RiskAnalyzeResponse, RiskItem, VerificationSession, WorkContext } from "@/types";
+import type {
+  DailyProductMetric,
+  InputType,
+  NextAction,
+  RiskAnalyzeResponse,
+  RiskItem,
+  VerificationSession,
+  WorkContext,
+} from "@/types";
 
 /**
  * 브라우저 → /mido/api/verifications/...
  * nginx가 mido-app 으로내거나, mido-web Route Handler가 Spring 으로 프록시
  */
 const base = "/mido/api/verifications";
+/** 브라우저 → /mido/api/dashboard/... → next.config.ts rewrites()가 Spring으로 프록시 */
+const dashboardBase = "/mido/api/dashboard";
 
 export interface CreateManualPayload {
   inputType: InputType;
@@ -64,6 +74,12 @@ export async function analyzeVerification(verificationId: string): Promise<RiskA
     method: "POST",
   });
   return handleResponse<RiskAnalyzeResponse>(res);
+}
+
+/** DA-05 대시보드 — mart_daily_product_metrics 기반 일별 제품 지표(M-001~M-004) */
+export async function getDailyMetrics(days = 30): Promise<DailyProductMetric[]> {
+  const res = await fetch(`${dashboardBase}/daily-metrics?days=${days}`);
+  return handleResponse<DailyProductMetric[]>(res);
 }
 
 /** @deprecated Use analyzeVerification — kept for offline fallback */
