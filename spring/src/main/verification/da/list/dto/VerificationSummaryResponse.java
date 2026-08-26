@@ -1,4 +1,4 @@
-package com.mido.verification.list.dto;
+package com.mido.verification.da.list.dto;
 
 import com.mido.verification.common.entity.VerificationStatus;
 

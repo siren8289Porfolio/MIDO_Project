@@ -1,7 +1,7 @@
-package com.mido.verification.dashboard.controller;
+package com.mido.verification.da.dashboard.controller;
 
-import com.mido.verification.dashboard.dto.DailyProductMetricResponse;
-import com.mido.verification.dashboard.service.DashboardMetricsService;
+import com.mido.verification.da.dashboard.dto.DailyProductMetricResponse;
+import com.mido.verification.da.dashboard.service.DashboardMetricsService;
 import com.mido.verification.global.exception.GlobalExceptionHandler;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +45,7 @@ class DashboardMetricsControllerTest {
 
         when(dashboardMetricsService.dailyMetrics(isNull())).thenReturn(List.of(row));
 
-        mockMvc.perform(get("/api/dashboard/daily-metrics"))
+        mockMvc.perform(get("/api/da/dashboard/daily-metrics"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].metricDate").value("2026-08-25"))
                 .andExpect(jsonPath("$[0].verificationStartedCount").value(10))
@@ -57,7 +57,7 @@ class DashboardMetricsControllerTest {
     void dailyMetrics_passesDaysParam() throws Exception {
         when(dashboardMetricsService.dailyMetrics(eq(7))).thenReturn(List.of());
 
-        mockMvc.perform(get("/api/dashboard/daily-metrics").param("days", "7"))
+        mockMvc.perform(get("/api/da/dashboard/daily-metrics").param("days", "7"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$").isEmpty());

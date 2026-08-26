@@ -60,7 +60,7 @@ paths:
                   size:
                     type: integer
 
-  /api/dashboard/daily-metrics:
+  /api/da/dashboard/daily-metrics:
     get:
       summary: Daily product metrics (M-001~M-004) from the mart_daily_product_metrics view
       operationId: getDailyDashboardMetrics

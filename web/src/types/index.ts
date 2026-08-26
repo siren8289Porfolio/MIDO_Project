@@ -55,7 +55,7 @@ export interface DecisionRecord {
   decidedAt: string;
 }
 
-/** mart_daily_product_metrics 뷰 한 행. GET /api/dashboard/daily-metrics 응답. */
+/** mart_daily_product_metrics 뷰 한 행. GET /api/da/dashboard/daily-metrics 응답. */
 export interface DailyProductMetric {
   metricDate: string;
   verificationStartedCount: number;

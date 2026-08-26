@@ -2,7 +2,7 @@ package com.mido.verification.common.repository;
 
 import com.mido.verification.common.entity.VerificationData;
 import com.mido.verification.common.entity.VerificationStatus;
-import com.mido.verification.list.dto.VerificationSummaryResponse;
+import com.mido.verification.da.list.dto.VerificationSummaryResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,7 +18,7 @@ public interface VerificationDataRepository extends JpaRepository<VerificationDa
      * status 필터는 idx_verification_status_created(status, created_at DESC) 인덱스를 탄다.
      */
     @Query("""
-            SELECT new com.mido.verification.list.dto.VerificationSummaryResponse(
+            SELECT new com.mido.verification.da.list.dto.VerificationSummaryResponse(
                 v.id, v.inputType, v.status, v.createdAt)
             FROM VerificationData v
             WHERE (:status IS NULL OR v.status = :status)

@@ -23,10 +23,10 @@
 
 ![MIDO Product Analytics 대시보드](./assets/da-05-dashboard-sample.png)
 
-*위 캡처는 `GET /api/dashboard/daily-metrics`가 반환하는 스키마를 그대로 렌더링한
-화면이다. 실사용 verification 이벤트가 아직 충분히 쌓이지 않아 노란 배지로 표시된
-샘플 데이터로 채워져 있으며, 실제 이벤트가 쌓이면 동일 화면이 자동으로 실데이터로
-바뀐다 (`web/src/app/dashboard/page.tsx`).*
+*위 캡처는 `GET /api/da/dashboard/daily-metrics`가 반환하는 스키마를 그대로 렌더링한
+화면(`/mido/da/dashboard`)이다. 실사용 verification 이벤트가 아직 충분히 쌓이지 않아
+노란 배지로 표시된 샘플 데이터로 채워져 있으며, 실제 이벤트가 쌓이면 동일 화면이
+자동으로 실데이터로 바뀐다 (`web/src/app/da/dashboard/page.tsx`).*
 
 ---
 
@@ -53,8 +53,8 @@
 | 소스 시스템 | Spring Boot 3.5 (Java 21) + PostgreSQL | `verification_data`, `decision_log`, `risk_assessment`, `approval` OLTP 원본 |
 | 마이그레이션/버전 관리 | Flyway (`V1`~`V7`) | 스키마 + 지표 계약(metric contract) + 마트 뷰를 코드로 버전 관리 |
 | 변환 계층 (ELT) | PostgreSQL View 기반 dbt 스타일 레이어링 | `stg_*` (staging) → `int_*` (intermediate) → `fct_*` (fact) → `mart_*` (mart) |
-| 서빙 API | Spring MVC REST (`/api/verifications`, `/api/dashboard`) | LOB 제외 Projection, Pagination, mart 뷰 서빙 |
-| 시각화 | Next.js 15 + React 19 (커스텀 CSS 차트, 외부 BI 미사용) | `/dashboard` — 일별 M-001~M-004 추이 |
+| 서빙 API | Spring MVC REST (`/api/verifications`, `/api/da/dashboard`) | LOB 제외 Projection, Pagination, mart 뷰 서빙 |
+| 시각화 | Next.js 15 + React 19 (커스텀 CSS 차트, 외부 BI 미사용) | `/mido/da/dashboard` — 일별 M-001~M-004 추이 |
 | 취약점 근거 소스 | OSV, NVD, GitHub Advisory, CISA KEV, MITRE CWE, OWASP | AI 위험도 판단의 1차 근거 |
 | AI 서비스 | FastAPI (Python) | 코드 dependency 추출 + LLM 기반 위험 설명 |
 
@@ -80,7 +80,7 @@ Page<VerificationSummaryResponse> findSummaries(@Param("status") VerificationSta
 ```
 
 `VerificationSummaryResponse`는 `code` 필드를 아예 갖지 않아, 목록 API에서 대용량 코드가
-실수로라도 응답에 섞일 수 없다 (`spring/src/main/verification/list/`).
+실수로라도 응답에 섞일 수 없다 (`spring/src/main/verification/da/list/`).
 
 ### 4.2 레이어드 변환 — staging → intermediate → fact → mart
 
@@ -111,11 +111,11 @@ M-005(감사 수작업 시간)는 각각 분자/분모/제외 정책/timezone �
 
 ## 5. Key Insights & Dashboard
 
-**라이브 데이터 소스:** `GET /api/dashboard/daily-metrics?days=30` (신규 구현,
-`spring/src/main/verification/dashboard/`) → `mart_daily_product_metrics` 뷰를
+**라이브 데이터 소스:** `GET /api/da/dashboard/daily-metrics?days=30` (신규 구현,
+`spring/src/main/verification/da/dashboard/`) → `mart_daily_product_metrics` 뷰를
 `JdbcTemplate`로 직접 조회해 반환한다.
 
-**대시보드 화면:** `/dashboard` (Next.js, 신규 구현) — 위 1번 섹션 캡처 참고.
+**대시보드 화면:** `/mido/da/dashboard` (`web/src/app/da/dashboard/page.tsx`, 신규 구현) — 위 1번 섹션 캡처 참고.
 
 이 프로젝트는 아직 실사용자 트래픽이 없는 MVP 단계라, "숫자 기반 인사이트"는 실측치가
 아니라 **위 캡처의 샘플 데이터로 시뮬레이션한 해석 예시**다 (정직하게 라벨링됨). 실데이터가
@@ -137,7 +137,7 @@ M-005(감사 수작업 시간)는 각각 분자/분모/제외 정책/timezone �
 | 우선순위 | 제안 | effort | 기대 impact | 근거 |
 | --- | --- | --- | --- | --- |
 | 1 | **재작업률(M-003) 급증일 알람** — `mart_daily_product_metrics.m003_rework_rate`가 전일 대비 임계치(예: +10%p) 이상이면 Slack 알림 | 낮음 (기존 뷰 재사용, cron + webhook만 추가) | 재작업 원인(특정 팀/가이드라인 미준수)을 당일 파악해 그 주 안에 교정 가능 | insight #2 |
-| 2 | **승인 SLA 대시보드화** — M-002가 목표(예: 5분) 초과 시 리뷰어 리드에게 주간 리포트 | 낮음 (`/api/dashboard/daily-metrics` 이미 존재, 집계만 추가) | 릴리즈 리드타임 단축 → 팀 처리량 증가 | insight #3, BQ-003 |
+| 2 | **승인 SLA 대시보드화** — M-002가 목표(예: 5분) 초과 시 리뷰어 리드에게 주간 리포트 | 낮음 (`/api/da/dashboard/daily-metrics` 이미 존재, 집계만 추가) | 릴리즈 리드타임 단축 → 팀 처리량 증가 | insight #3, BQ-003 |
 | 3 | **DecisionLog 미작성 verification 주간 리포트** — M-001 분모-분자 gap을 리스트업해 담당자에게 전달 | 낮음 (기존 `GET /api/verifications?status=DONE` + decision_log LEFT JOIN NULL 필터) | "판단 없이 완료" 사각지대 제거 → 감사 대응력(M-005) 개선 | insight #4, BQ-008 |
 | 4 | **decision_log append-only 제약 적용** — `DA-02` §12에서 다음 우선순위로 남겨둔 항목을 실제 DB 제약(UPDATE/DELETE 금지 트리거)으로 승격 | 중간 | 판단 이력 조작 불가 → 컴플라이언스/감사 신뢰도 확보 | Business Problem #2 |
 | 5 | **AI 근거 제공 여부 A/B 비교 (BQ-002)** — `mart_ai_operations`와 `decision_log`를 조인해 "AI 근거가 붙은 verification"과 "안 붙은 verification"의 DecisionLog 작성률 비교 | 중간 (조인 쿼리 신규 작성 필요) | AI 근거 UI 투자를 계속할지 데이터로 검증 | Business Problem #1, BQ-002 |

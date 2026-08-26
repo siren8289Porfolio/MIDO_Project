@@ -3,13 +3,13 @@
 import { useEffect, useState } from "react";
 import { BarChart3, Shield } from "lucide-react";
 import { getDailyMetrics } from "@/lib/api";
-import { SAMPLE_DAILY_METRICS } from "@/lib/sampleMetrics";
+import { SAMPLE_DAILY_METRICS } from "@/lib/da/sampleMetrics";
 import type { DailyProductMetric } from "@/types";
-import { DailyMetricsBarChart, DailyMetricsSummaryTable } from "@/components/DailyMetricsBarChart";
+import { DailyMetricsBarChart, DailyMetricsSummaryTable } from "@/components/da/DailyMetricsBarChart";
 
 /**
  * DA-05 "Key Insights & Dashboard" 라이브 데이터 소스.
- * GET /api/dashboard/daily-metrics (mart_daily_product_metrics 기반) 를 그대로 시각화한다.
+ * GET /api/da/dashboard/daily-metrics (mart_daily_product_metrics 기반) 를 그대로 시각화한다.
  *
  * 실사용 verification 이벤트가 아직 없거나(빈 배열) 백엔드에 연결할 수 없을 때는
  * 화면 레이아웃 확인용 샘플 데이터로 폴백하고, 그 사실을 배지로 명확히 표시한다.

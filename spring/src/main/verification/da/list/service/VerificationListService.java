@@ -1,8 +1,8 @@
-package com.mido.verification.list.service;
+package com.mido.verification.da.list.service;
 
 import com.mido.verification.common.entity.VerificationStatus;
 import com.mido.verification.common.repository.VerificationDataRepository;
-import com.mido.verification.list.dto.VerificationSummaryResponse;
+import com.mido.verification.da.list.dto.VerificationSummaryResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;

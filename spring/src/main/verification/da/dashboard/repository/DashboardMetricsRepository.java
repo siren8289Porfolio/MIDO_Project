@@ -1,6 +1,6 @@
-package com.mido.verification.dashboard.repository;
+package com.mido.verification.da.dashboard.repository;
 
-import com.mido.verification.dashboard.dto.DailyProductMetricResponse;
+import com.mido.verification.da.dashboard.dto.DailyProductMetricResponse;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 

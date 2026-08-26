@@ -1,7 +1,7 @@
-package com.mido.verification.list.controller;
+package com.mido.verification.da.list.controller;
 
-import com.mido.verification.list.dto.VerificationSummaryResponse;
-import com.mido.verification.list.service.VerificationListService;
+import com.mido.verification.da.list.dto.VerificationSummaryResponse;
+import com.mido.verification.da.list.service.VerificationListService;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

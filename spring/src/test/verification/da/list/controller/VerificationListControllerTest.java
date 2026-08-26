@@ -1,9 +1,9 @@
-package com.mido.verification.list.controller;
+package com.mido.verification.da.list.controller;
 
 import com.mido.verification.common.entity.VerificationStatus;
 import com.mido.verification.global.exception.GlobalExceptionHandler;
-import com.mido.verification.list.dto.VerificationSummaryResponse;
-import com.mido.verification.list.service.VerificationListService;
+import com.mido.verification.da.list.dto.VerificationSummaryResponse;
+import com.mido.verification.da.list.service.VerificationListService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
