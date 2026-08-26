@@ -43,15 +43,15 @@ DA-05 "Key Insights & Dashboard"가 요구하는 라이브 데이터 소스도 �
 
 ## 3. 실제 DA 작업물로 확인된 SQL 산출물
 
-아래 파일들은 Flyway가 읽는 실제 마이그레이션이라 `da/`로 옮기지 않고 원래 위치를 유지한다.
+아래 파일들은 Flyway가 읽는 실제 마이그레이션이라 최상위 `db/migration/`에 둔다 (`da/`로 옮기지 않음).
 
 | 파일 | 설명 |
 | --- | --- |
-| `../spring/src/main/resources/db/migration/V1__analytics_requirements.sql` | analytics grain, segment, business question, metric definition |
-| `../spring/src/main/resources/db/migration/V2__kpi_definition.sql` | KPI contract, responsible decision completion view, guardrail/operational metric 정의 |
-| `../spring/src/main/resources/db/migration/V3__analysis_design.sql` | analysis framework, funnel, cohort, experiment design, failure taxonomy |
-| `../spring/src/main/resources/db/migration/V4__event_data_architecture.sql` | event schema, event property, metric trace, contract test, schema change 정의 |
-| `../spring/src/main/resources/db/migration/V5__data_requirements.sql` | `verification_data.status` 컬럼, DA-02 §6에서 설계한 인덱스 전체(§6.1) 실제 적용 |
+| `../db/migration/V1__analytics_requirements.sql` | analytics grain, segment, business question, metric definition |
+| `../db/migration/V2__kpi_definition.sql` | KPI contract, responsible decision completion view, guardrail/operational metric 정의 |
+| `../db/migration/V3__analysis_design.sql` | analysis framework, funnel, cohort, experiment design, failure taxonomy |
+| `../db/migration/V4__event_data_architecture.sql` | event schema, event property, metric trace, contract test, schema change 정의 |
+| `../db/migration/V5__data_requirements.sql` | `verification_data.status` 컬럼, DA-02 §6에서 설계한 인덱스 전체(§6.1) 실제 적용 |
 
 ## 4. DB 산출물 인덱스
 

@@ -1,0 +1,8 @@
+// Sample Gradle manifest for DependencyManifestParser (GradleDependencyParser)
+dependencies {
+    implementation("org.springframework:spring-web:6.1.6")
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    runtimeOnly group: 'org.postgresql', name: 'postgresql', version: '42.7.3'
+    // variable versions are ignored by the parser
+    implementation("com.example:dynamic:${version}")
+}

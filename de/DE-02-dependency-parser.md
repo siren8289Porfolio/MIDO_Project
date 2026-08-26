@@ -16,11 +16,11 @@ DependencyExtractor (dedupe by ecosystem:name:version)
 
 ## 2. 지원 매니페스트
 
-| Parser | 경로 패턴 | Ecosystem |
-| --- | --- | --- |
-| `GradleDependencyParser` | `build.gradle`, `build.gradle.kts` | maven |
-| `MavenPomDependencyParser` | `pom.xml` | maven |
-| `PackageJsonDependencyParser` | `package.json` | npm |
+| Parser | 경로 패턴 | Ecosystem | 샘플 |
+| --- | --- | --- | --- |
+| `GradleDependencyParser` | `build.gradle`, `build.gradle.kts` | maven | `fixtures/build.gradle.sample` |
+| `MavenPomDependencyParser` | `pom.xml` | maven | `fixtures/pom.xml.sample` |
+| `PackageJsonDependencyParser` | `package.json` | npm | `fixtures/package.json.sample` |
 
 구체 버전만 수집하고, 변수/range만 있는 항목은 제외한다.
 
@@ -39,6 +39,8 @@ spring/src/test/verification/de/
 ```
 
 패키지: `com.mido.verification.de.dependency`, `com.mido.verification.de.risk`
+
+샘플 입력은 최상위 `de/fixtures/`에서 바로 열 수 있다.
 
 ## 4. 다운스트림
 

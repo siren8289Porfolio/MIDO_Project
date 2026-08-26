@@ -694,7 +694,7 @@ jobs:
 ### 14.2 migration 파일
 
 ```
-spring/src/main/resources/db/migration/
+db/migration/
   V1__create_verification_data.sql
   V2__create_manual_input.sql
   V3__add_status_column.sql

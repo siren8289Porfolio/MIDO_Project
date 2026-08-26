@@ -11,6 +11,8 @@ RUN chmod +x gradlew \
  && ./gradlew dependencies --no-daemon -q || true
 
 COPY spring/src ./src
+# Flyway SQL is owned by top-level `db/` (see spring/build.gradle.kts processResources)
+COPY db /db
 
 RUN ./gradlew bootJar --no-daemon -x test
 

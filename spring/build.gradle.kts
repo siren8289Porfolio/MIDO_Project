@@ -35,6 +35,14 @@ sourceSets {
 	}
 }
 
+// Flyway SQL lives in repo-root `db/migration/` so the role folder is browseable.
+// Pack them onto the classpath as `db/migration/*` for Spring Boot Flyway.
+tasks.named<ProcessResources>("processResources") {
+	from("../db/migration") {
+		into("db/migration")
+	}
+}
+
 dependencies {
 	implementation("org.flywaydb:flyway-core")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")

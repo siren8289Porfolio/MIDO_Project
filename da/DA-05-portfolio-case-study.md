@@ -40,7 +40,7 @@
 | "누가 이 코드를 승인했는지" 감사(audit) 시점에 추적이 안 되면 컴플라이언스 리스크가 생긴다 | 감사 대응 인건비, 규제 대응 실패 리스크 | BQ-008, M-005 |
 | 리뷰어 승인 대기 시간이 길어지면 릴리즈 리드타임이 늘어난다 | 팀 생산성 = 매출 실현 속도 | BQ-003, M-002 |
 
-`da/DA-04-document-index.md`가 가리키는 `spring/src/main/resources/db/migration/V1__analytics_requirements.sql`에
+`da/DA-04-document-index.md`가 가리키는 `db/migration/V1__analytics_requirements.sql`에
 이 문제들을 **BQ-001~BQ-010(비즈니스 질문)**, **M-001~M-005(지표)** 로 이미 계약(contract)
 형태로 정의해뒀다 — 즉 "무엇을 측정할지"부터 먼저 합의하고 파이프라인을 만든 구조다.
 
