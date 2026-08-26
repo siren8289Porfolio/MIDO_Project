@@ -20,7 +20,7 @@ MIDO_Project/
 ├── Dockerfile
 │
 ├── docs/
-│   ├── da/
+│   ├── Da/
 │   │   ├── DA-01-data-performance-guide.md
 │   │   ├── DA-02-db-efficiency-summary.md
 │   │   ├── DA-03-efficiency-summary.md

@@ -248,7 +248,7 @@ After
 | FK 인덱스           | work_context UNIQUE, uploaded_file, manual_input           | `V1__efficiency_optimization.sql`                   |
 | EXPLAIN 검증 스크립트  | 목록·DRAFT·context FK 조회                                     | `verify-db-efficiency.sql`                          |
 | prod Flyway 활성화  | `ddl-auto: validate` + migration                           | `application-prod.yml`                              |
-| 설계 문서            | DB/코드 효율화 로드맵                                              | `docs/da/DA-02-db-efficiency-summary.md`, `docs/da/DA-03-efficiency-summary.md` |
+| 설계 문서            | DB/코드 효율화 로드맵                                              | `docs/Da/DA-02-db-efficiency-summary.md`, `docs/Da/DA-03-efficiency-summary.md` |
 
 ---
 
