@@ -11,6 +11,55 @@ servers:
     description: Local development
 
 paths:
+  /api/verifications:
+    get:
+      summary: List verifications (LOB-free projection, paginated)
+      operationId: listVerifications
+      tags:
+        - Verification
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [DRAFT, READY, RUNNING, DONE, FAILED]
+          description: Filter by verification status
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+      responses:
+        '200':
+          description: Paginated list of verification summaries (code LOB excluded)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/VerificationSummaryResponse'
+                  totalElements:
+                    type: integer
+                    format: int64
+                  totalPages:
+                    type: integer
+                  number:
+                    type: integer
+                  size:
+                    type: integer
+
   /api/verifications/manual:
     post:
       summary: Create verification data from manual input
@@ -147,6 +196,22 @@ components:
       required:
         - inputType
         - inputMethod
+
+    VerificationSummaryResponse:
+      type: object
+      description: Projection used by the list endpoint; never includes the code LOB.
+      properties:
+        id:
+          type: string
+          format: uuid
+        inputType:
+          type: string
+        status:
+          type: string
+          enum: [DRAFT, READY, RUNNING, DONE, FAILED]
+        createdAt:
+          type: string
+          format: date-time
 
     IdResponse:
       type: object
