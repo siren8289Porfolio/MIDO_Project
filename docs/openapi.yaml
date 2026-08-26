@@ -60,6 +60,31 @@ paths:
                   size:
                     type: integer
 
+  /api/dashboard/daily-metrics:
+    get:
+      summary: Daily product metrics (M-001~M-004) from the mart_daily_product_metrics view
+      operationId: getDailyDashboardMetrics
+      tags:
+        - Dashboard
+      parameters:
+        - name: days
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 30
+            maximum: 180
+          description: Number of trailing days to include
+      responses:
+        '200':
+          description: Daily product metrics, most recent first
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DailyProductMetricResponse'
+
   /api/verifications/manual:
     post:
       summary: Create verification data from manual input
@@ -196,6 +221,40 @@ components:
       required:
         - inputType
         - inputMethod
+
+    DailyProductMetricResponse:
+      type: object
+      description: One row of mart_daily_product_metrics
+      properties:
+        metricDate:
+          type: string
+          format: date
+        verificationStartedCount:
+          type: integer
+        verificationDoneCount:
+          type: integer
+        decisionLogCount:
+          type: integer
+        fixDecisionCount:
+          type: integer
+        reworkCount:
+          type: integer
+        m001DecisionLogRate:
+          type: number
+          nullable: true
+        m002AvgApprovalSeconds:
+          type: number
+          nullable: true
+        m003ReworkRate:
+          type: number
+          nullable: true
+        m004CompletionRate:
+          type: number
+          nullable: true
+        m005AuditManualTimeReductionRate:
+          type: number
+          nullable: true
+          description: Always null until audit events are collected (M-005 not yet measured)
 
     VerificationSummaryResponse:
       type: object

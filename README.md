@@ -249,6 +249,7 @@ After
 | EXPLAIN 검증 스크립트  | 목록·DRAFT·context FK 조회                                     | `verify-db-efficiency.sql`                          |
 | prod Flyway 활성화  | `ddl-auto: validate` + migration                           | `application-prod.yml`                              |
 | 설계 문서            | DB/코드 효율화 로드맵                                              | `da/DA-02-db-efficiency-summary.md`, `da/DA-03-efficiency-summary.md` |
+| 포트폴리오 케이스 스터디 | Business Problem/Dashboard/Recommendations, 대시보드 캡처         | `da/DA-05-portfolio-case-study.md` |
 
 ---
 

@@ -54,3 +54,18 @@ export interface DecisionRecord {
   rationale: string;
   decidedAt: string;
 }
+
+/** mart_daily_product_metrics 뷰 한 행. GET /api/dashboard/daily-metrics 응답. */
+export interface DailyProductMetric {
+  metricDate: string;
+  verificationStartedCount: number;
+  verificationDoneCount: number;
+  decisionLogCount: number;
+  fixDecisionCount: number;
+  reworkCount: number;
+  m001DecisionLogRate: number | null;
+  m002AvgApprovalSeconds: number | null;
+  m003ReworkRate: number | null;
+  m004CompletionRate: number | null;
+  m005AuditManualTimeReductionRate: number | null;
+}
